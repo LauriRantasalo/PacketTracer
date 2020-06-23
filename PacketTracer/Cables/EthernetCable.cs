@@ -12,10 +12,10 @@ namespace PacketTracer.Cables
 {
     public class EthernetCable : Cable
     {
-        
+       public const string cableType = "Ethernet";
        public EthernetCable(Point start, Point end) : base(start, end)
        {
-            this.type = "Ethernet";
+            this.type = cableType;
        }
 
         

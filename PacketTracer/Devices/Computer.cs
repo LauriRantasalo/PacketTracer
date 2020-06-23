@@ -10,10 +10,6 @@ namespace PacketTracer.Devices
 {
     public class Computer : Device
     {
-        public Computer(Rectangle rectangle, string name)
-        {
-            rect = rectangle;
-            this.name = name;
-        }
+        public Computer(Rectangle rectangle, string name, int nroOfEthernetPorts) : base(name, rectangle, nroOfEthernetPorts){}
     }
 }

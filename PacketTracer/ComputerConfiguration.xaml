@@ -10,11 +10,16 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="10*"></RowDefinition>
+            <RowDefinition Height="41*"></RowDefinition>
+            <RowDefinition Height="466*"></RowDefinition>
+            <RowDefinition Height="33*"></RowDefinition>
         </Grid.RowDefinitions>
         <Button Width="200" Height="75" Margin="50,0,0,0">Console</Button>
         <Button Width="200" Height="75" Margin="350,0,0,0">Connections</Button>
         <Button Width="200" Height="75" Margin="650,0,0,0">Settings</Button>
+        <ScrollViewer Grid.Row="1" Width="910" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="661" Margin="50,0,0,80" MaxHeight="1920" MinHeight="200" HorizontalScrollBarVisibility="Visible" >
+            <TextBlock x:Name="ConsoleTextBlock"  HorizontalAlignment="Left" Text="" IsTextSelectionEnabled="True" FontSize="11" MaxHeight="1920" MinHeight="200"/>
+        </ScrollViewer>
+        <TextBox x:Name="ConsoleInputText" HorizontalAlignment="Left" Margin="50,0,0,0" Grid.Row="2" Text="" TextWrapping="Wrap" VerticalAlignment="Center" Height="42" Width="910" KeyDown="ConsoleInputText_KeyDown" PlaceholderText="\:"/>
     </Grid>
 </Page>

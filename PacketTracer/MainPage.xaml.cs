@@ -23,6 +23,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 
+using PacketTracer.Devices;
+using PacketTracer.Cables;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace PacketTracer
@@ -32,13 +34,12 @@ namespace PacketTracer
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        List<Computer> computers = new List<Computer>();
-
+        EntityManager entityManager = new EntityManager();
         public bool cableEditMode = false;
         Point cablePointA = new Point(-1, -1);
-        Computer connectedA;
+        Device connectedA;
         Point cablePointB = new Point(-1, -1);
-        Computer connectedB;
+        Device connectedB;
 
 
         public MainPage()
@@ -63,8 +64,8 @@ namespace PacketTracer
             pc.PointerMoved += Entity_PointerMoved;
             pc.PointerPressed += Entity_PointerPressed;
             pc.PointerReleased += Entity_PointerReleased;
-            Computer temp = new Computer(pc, pc.Name, "EMTPY");
-            computers.Add(temp);
+            Computer temp = new Computer(pc, pc.Name, 2);
+            entityManager.computers.Add(temp);
 
             Rectangle pc2 = new Rectangle();
             pc2.Name = "pc2";
@@ -77,8 +78,22 @@ namespace PacketTracer
             pc2.PointerMoved += Entity_PointerMoved;
             pc2.PointerPressed += Entity_PointerPressed;
             pc2.PointerReleased += Entity_PointerReleased;
-            temp = new Computer(pc2, pc2.Name, "EMTPY");
-            computers.Add(temp);
+            temp = new Computer(pc2, pc2.Name, 1);
+            entityManager.computers.Add(temp);
+
+            Rectangle pc3 = new Rectangle();
+            pc3.Name = "pc3";
+            baseCanvas.Children.Add(pc3);
+            pc3.Fill = new SolidColorBrush(Windows.UI.Colors.Blue);
+            pc3.Width = 40;
+            pc3.Height = 40;
+            Canvas.SetLeft(pc3, 50);
+            Canvas.SetTop(pc3, 200);
+            pc3.PointerMoved += Entity_PointerMoved;
+            pc3.PointerPressed += Entity_PointerPressed;
+            pc3.PointerReleased += Entity_PointerReleased;
+            temp = new Computer(pc3, pc3.Name, 1);
+            entityManager.computers.Add(temp);
 
 
         }
@@ -128,7 +143,7 @@ namespace PacketTracer
 
             if (ptrPt.Properties.IsLeftButtonPressed && cableEditMode)
             {
-                Computer selected = computers.Find(x => x.name == senderRect.Name);
+                Device selected = entityManager.computers.Find(computer => computer.name == senderRect.Name);
                 if (cablePointA == new Point(-1,-1))
                 {
                     cablePointA = senderRect.TransformToVisual(baseCanvas).TransformPoint(new Point());
@@ -148,18 +163,21 @@ namespace PacketTracer
                     }
                     else
                     {
-                        Cable cable = new Cable(cablePointA, cablePointB);
-                        cable.computerA = connectedA;
-                        cable.computerB = connectedB;
+                        if (connectedA.ethernetPorts.Count < connectedA.nroOfEthernetPorts && connectedB.ethernetPorts.Count < connectedB.nroOfEthernetPorts)
+                        {
+                            EthernetCable ethernetCable = new EthernetCable(cablePointA, cablePointB);
+                            ethernetCable.deviceA = connectedA;
+                            ethernetCable.deviceB = connectedB;
 
-                        connectedA.connectedTo.Add(connectedB, cable);
-                        connectedB.connectedTo.Add(connectedA, cable);
-                        baseCanvas.Children.Add(cable.line);
+                            connectedA.AddCable(ethernetCable, connectedB);
+                            connectedB.AddCable(ethernetCable, connectedA);
+                            baseCanvas.Children.Add(ethernetCable.line);
+                        }
+
+                        
+
                     }
 
-
-                    //connectedA.connectedTo.Add(connectedB);
-                    //connectedB.connectedTo.Add(connectedA);
 
                     cablePointA = new Point(-1, -1);
                     cablePointB = new Point(-1, -1);
@@ -171,13 +189,11 @@ namespace PacketTracer
             
         }
 
-        
-
         private void Entity_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
             Rectangle rect = (Rectangle)sender;
             PointerPoint ptrPt = e.GetCurrentPoint(baseCanvas);
-            Computer selected = computers.Find(x => x.name == rect.Name);
+            Computer selected = entityManager.computers.Find(x => x.name == rect.Name);
 
             if (ptrPt.Properties.IsLeftButtonPressed)
             {
@@ -188,7 +204,7 @@ namespace PacketTracer
                 {
                     foreach (var connectedPair in selected.connectedTo)
                     {
-                        connectedPair.Value.ReDrawLine(rect.TransformToVisual(baseCanvas).TransformPoint(new Point()), connectedPair.Key.rect.TransformToVisual(baseCanvas).TransformPoint(new Point()));
+                        connectedPair.Value.ReDrawCable(rect.TransformToVisual(baseCanvas).TransformPoint(new Point()), connectedPair.Key.rect.TransformToVisual(baseCanvas).TransformPoint(new Point()));
                     }
                 }
             }
@@ -203,7 +219,7 @@ namespace PacketTracer
         {
             AppWindow appWindow = await AppWindow.TryCreateAsync();
             Frame frame = new Frame();
-            frame.Navigate(typeof(ComputerConfiguration));
+            frame.Navigate(typeof(ComputerConfiguration), entityManager);
             ElementCompositionPreview.SetAppWindowContent(appWindow, frame);
             await appWindow.TryShowAsync();
         }

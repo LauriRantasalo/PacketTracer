@@ -119,11 +119,14 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Cable.cs" />
-    <Compile Include="Computer.cs" />
+    <Compile Include="Cables\Cable.cs" />
+    <Compile Include="Cables\EthernetCable.cs" />
     <Compile Include="ComputerConfiguration.xaml.cs">
       <DependentUpon>ComputerConfiguration.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Devices\Computer.cs" />
+    <Compile Include="Devices\Device.cs" />
+    <Compile Include="EntityManager.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
