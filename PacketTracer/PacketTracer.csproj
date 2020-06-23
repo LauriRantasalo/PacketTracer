@@ -126,6 +126,7 @@
     </Compile>
     <Compile Include="Devices\Computer.cs" />
     <Compile Include="Devices\Device.cs" />
+    <Compile Include="Devices\Router.cs" />
     <Compile Include="EntityManager.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>

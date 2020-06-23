@@ -45,66 +45,68 @@ namespace PacketTracer
         public MainPage()
         {
             this.InitializeComponent();
-            CreateComputers();
+            CreateDevices();
         }
 
         /// <summary>
         /// Just for early development purposes
         /// </summary>
-        void CreateComputers()
+        void CreateDevices()
         {
+            Grid baseGrid = new Grid();
+            Rectangle router = new Rectangle();
+            TextBlock text = new TextBlock();
+            router.Name = "router1";
+            baseGrid.Name = "router1";
+            text.Text = router.Name;
+            baseGrid.Children.Add(router);
+            baseGrid.Children.Add(text);
+            baseCanvas.Children.Add(baseGrid);
+            router.Fill = new SolidColorBrush(Windows.UI.Colors.Red);
+            baseGrid.Width = 40;
+            baseGrid.Height = 40;
+            Canvas.SetLeft(baseGrid, 50);
+            Canvas.SetTop(baseGrid, 400);
+            baseGrid.PointerMoved += Entity_PointerMoved;
+            baseGrid.PointerPressed += Entity_PointerPressed;
+            baseGrid.PointerReleased += Entity_PointerReleased;
+            Router tempR = new Router(baseGrid, router.Name, 2);
+            entityManager.devices.Add(tempR);
+
+            baseGrid = new Grid();
             Rectangle pc = new Rectangle();
+            text = new TextBlock();
             pc.Name = "pc1";
-            baseCanvas.Children.Add(pc);
+            baseGrid.Name = "pc1";
+            text.Text = pc.Name;
+            baseGrid.Children.Add(pc);
+            baseGrid.Children.Add(text);
+            baseCanvas.Children.Add(baseGrid);
             pc.Fill = new SolidColorBrush(Windows.UI.Colors.Red);
-            pc.Width = 40;
-            pc.Height = 40;
-            Canvas.SetLeft(pc, 50);
-            Canvas.SetTop(pc, 50);
-            pc.PointerMoved += Entity_PointerMoved;
-            pc.PointerPressed += Entity_PointerPressed;
-            pc.PointerReleased += Entity_PointerReleased;
-            Computer temp = new Computer(pc, pc.Name, 2);
-            entityManager.computers.Add(temp);
-
-            Rectangle pc2 = new Rectangle();
-            pc2.Name = "pc2";
-            baseCanvas.Children.Add(pc2);
-            pc2.Fill = new SolidColorBrush(Windows.UI.Colors.Blue);
-            pc2.Width = 40;
-            pc2.Height = 40;
-            Canvas.SetLeft(pc2, 200);
-            Canvas.SetTop(pc2, 50);
-            pc2.PointerMoved += Entity_PointerMoved;
-            pc2.PointerPressed += Entity_PointerPressed;
-            pc2.PointerReleased += Entity_PointerReleased;
-            temp = new Computer(pc2, pc2.Name, 1);
-            entityManager.computers.Add(temp);
-
-            Rectangle pc3 = new Rectangle();
-            pc3.Name = "pc3";
-            baseCanvas.Children.Add(pc3);
-            pc3.Fill = new SolidColorBrush(Windows.UI.Colors.Blue);
-            pc3.Width = 40;
-            pc3.Height = 40;
-            Canvas.SetLeft(pc3, 50);
-            Canvas.SetTop(pc3, 200);
-            pc3.PointerMoved += Entity_PointerMoved;
-            pc3.PointerPressed += Entity_PointerPressed;
-            pc3.PointerReleased += Entity_PointerReleased;
-            temp = new Computer(pc3, pc3.Name, 1);
-            entityManager.computers.Add(temp);
-
+            baseGrid.Width = 40;
+            baseGrid.Height = 40;
+            Canvas.SetLeft(baseGrid, 50);
+            Canvas.SetTop(baseGrid, 200);
+            baseGrid.PointerMoved += Entity_PointerMoved;
+            baseGrid.PointerPressed += Entity_PointerPressed;
+            baseGrid.PointerReleased += Entity_PointerReleased;
+            Computer temp = new Computer(baseGrid, pc.Name, 2);
+            entityManager.devices.Add(temp);
 
         }
 
-
+        /// <summary>
+        /// Gets run whenever an entity (computer, router, switch) is clicked on
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Entity_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             PointerPoint ptrPt = e.GetCurrentPoint(baseCanvas);
-            Rectangle senderRect = (Rectangle)sender;
+            Grid senderBaseGrid = (Grid)sender;
 
             //TODO: Find out if the flyouts could be premade so I would not need to make them in code
+            // Right click on entity shows a pop up menu
             if (ptrPt.Properties.IsRightButtonPressed)
             {
                 Flyout optionsFlyout = new Flyout();
@@ -121,7 +123,7 @@ namespace PacketTracer
                 Button connectionsBTN = new Button();
                 Button settingsBTN = new Button();
 
-                nameText.Text = senderRect.Name;
+                nameText.Text = senderBaseGrid.Name;
                 consoleBTN.Content = "Console";
                 connectionsBTN.Content = "Connections";
                 settingsBTN.Content = "Settings";
@@ -138,31 +140,33 @@ namespace PacketTracer
 
                 connectionsBTN.Click += OptionsBTN_Clicked;
 
-                optionsFlyout.ShowAt(senderRect);
+                optionsFlyout.ShowAt(senderBaseGrid);
             }
 
             if (ptrPt.Properties.IsLeftButtonPressed && cableEditMode)
             {
-                Device selected = entityManager.computers.Find(computer => computer.name == senderRect.Name);
+                Device selected = entityManager.devices.Find(computer => computer.name == senderBaseGrid.Name);
                 if (cablePointA == new Point(-1,-1))
                 {
-                    cablePointA = senderRect.TransformToVisual(baseCanvas).TransformPoint(new Point());
+                    cablePointA = senderBaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point());
                     connectedA = selected;
                 }
                 else if (cablePointB == new Point(-1, -1))
                 {
-                    cablePointB = senderRect.TransformToVisual(baseCanvas).TransformPoint(new Point());
+                    cablePointB = senderBaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point());
                     connectedB = selected;
                 }
-
+                // If both ends of the cable have points assinged, then create new cable
                 if (cablePointA != new Point(-1, -1) && cablePointB != new Point(-1, -1))
                 {
+                    // Unless there already is a cable between the 2 devices
                     if (connectedA.connectedTo.TryGetValue(connectedB, out Cable tempCable))
                     {
                         Debug.WriteLine("Already connected");
                     }
                     else
                     {
+                        // If there are free ethernet ports on both of the devices, create the cable
                         if (connectedA.ethernetPorts.Count < connectedA.nroOfEthernetPorts && connectedB.ethernetPorts.Count < connectedB.nroOfEthernetPorts)
                         {
                             EthernetCable ethernetCable = new EthernetCable(cablePointA, cablePointB);
@@ -174,11 +178,8 @@ namespace PacketTracer
                             baseCanvas.Children.Add(ethernetCable.line);
                         }
 
-                        
-
                     }
-
-
+                    // Clear all cable values
                     cablePointA = new Point(-1, -1);
                     cablePointB = new Point(-1, -1);
                     cableEditMode = false;
@@ -191,22 +192,24 @@ namespace PacketTracer
 
         private void Entity_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
-            Rectangle rect = (Rectangle)sender;
+            Grid senderBaseGrid = (Grid)sender;
             PointerPoint ptrPt = e.GetCurrentPoint(baseCanvas);
-            Computer selected = entityManager.computers.Find(x => x.name == rect.Name);
-
+            Device selected = entityManager.devices.Find(x => x.name == senderBaseGrid.Name);
+            
             if (ptrPt.Properties.IsLeftButtonPressed)
             {
-                Canvas.SetLeft(rect, ptrPt.Position.X - rect.Width / 2);
-                Canvas.SetTop(rect, ptrPt.Position.Y - rect.Height / 2);
+                Canvas.SetLeft(senderBaseGrid, ptrPt.Position.X - senderBaseGrid.Width / 2);
+                Canvas.SetTop(senderBaseGrid, ptrPt.Position.Y - senderBaseGrid.Height / 2);
 
+                
                 if (selected.connectedTo.Count > 0)
                 {
                     foreach (var connectedPair in selected.connectedTo)
                     {
-                        connectedPair.Value.ReDrawCable(rect.TransformToVisual(baseCanvas).TransformPoint(new Point()), connectedPair.Key.rect.TransformToVisual(baseCanvas).TransformPoint(new Point()));
+                        connectedPair.Value.ReDrawCable(senderBaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()), connectedPair.Key.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()));
                     }
                 }
+                
             }
         }
 

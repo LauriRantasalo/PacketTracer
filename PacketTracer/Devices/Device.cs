@@ -4,16 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Shapes;
+using System.Diagnostics;
 
 using PacketTracer.Cables;
-using System.Diagnostics;
-using PacketTracer.Helpers;
+using Windows.UI.Xaml.Controls;
+
 namespace PacketTracer.Devices
 {
+    public enum deviceType{Computer, Router, Switch};
     public class Device
     {
         public string name;
-        public Rectangle rect;
+        public Grid baseGrid;
+        public deviceType typeOfDevice;
         /// <summary>
         /// Simulates cable connection to device
         /// </summary>
@@ -24,12 +27,12 @@ namespace PacketTracer.Devices
         /// </summary>
         public List<Cable> ethernetPorts;
 
-        public Device(string name, Rectangle rect, int nroOfEthernetPorts)
+        public Device(string name, Grid baseGrid, int nroOfEthernetPorts)
         {
             ethernetPorts = new List<Cable>();
             this.nroOfEthernetPorts = nroOfEthernetPorts;
             this.name = name;
-            this.rect = rect;
+            this.baseGrid = baseGrid;
         }
         
         public void AddCable(Cable cable, Device connectedDevice)

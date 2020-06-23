@@ -10,9 +10,11 @@ using Windows.UI.Xaml.Media;
 using PacketTracer.Devices;
 namespace PacketTracer.Cables
 {
+    public enum cableType {Ethernet, Console};
     public class Cable
     {
         public Polyline line;
+        public cableType typeOfCable;
         public Point startPoint, endPoint;
         public Device deviceA, deviceB;
         public string type;

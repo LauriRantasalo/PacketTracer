@@ -10,11 +10,11 @@ namespace PacketTracer
 {
     public class EntityManager
     {
-        public List<Computer> computers;
+        public List<Device> devices;
 
         public EntityManager()
         {
-            computers = new List<Computer>();
+            devices = new List<Device>();
         }
 
     }
