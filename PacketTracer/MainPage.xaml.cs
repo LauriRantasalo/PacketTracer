@@ -62,7 +62,7 @@ namespace PacketTracer
             baseGrid.Children.Add(router);
             baseGrid.Children.Add(text);
             baseCanvas.Children.Add(baseGrid);
-            router.Fill = new SolidColorBrush(Windows.UI.Colors.Red);
+            router.Fill = new SolidColorBrush(Windows.UI.Colors.Blue);
             baseGrid.Width = 40;
             baseGrid.Height = 40;
             Canvas.SetLeft(baseGrid, 50);
@@ -70,29 +70,32 @@ namespace PacketTracer
             baseGrid.PointerMoved += Entity_PointerMoved;
             baseGrid.PointerPressed += Entity_PointerPressed;
             baseGrid.PointerReleased += Entity_PointerReleased;
-            Router tempR = new Router(baseGrid, router.Name, 2);
+            Router tempR = new Router(baseGrid, router.Name, 4);
             entityManager.devices.Add(tempR);
 
-            baseGrid = new Grid();
-            Rectangle pc = new Rectangle();
-            text = new TextBlock();
-            pc.Name = "pc1";
-            baseGrid.Name = "pc1";
-            text.Text = pc.Name;
-            baseGrid.Children.Add(pc);
-            baseGrid.Children.Add(text);
-            baseCanvas.Children.Add(baseGrid);
-            pc.Fill = new SolidColorBrush(Windows.UI.Colors.Red);
-            baseGrid.Width = 40;
-            baseGrid.Height = 40;
-            Canvas.SetLeft(baseGrid, 50);
-            Canvas.SetTop(baseGrid, 200);
-            baseGrid.PointerMoved += Entity_PointerMoved;
-            baseGrid.PointerPressed += Entity_PointerPressed;
-            baseGrid.PointerReleased += Entity_PointerReleased;
-            Computer temp = new Computer(baseGrid, pc.Name, 2);
-            entityManager.devices.Add(temp);
-
+            for (int i = 0; i < 3; i++)
+            {
+                baseGrid = new Grid();
+                Rectangle pc = new Rectangle();
+                text = new TextBlock();
+                pc.Name = "pc" + i;
+                baseGrid.Name = "pc" + i;
+                text.Text = pc.Name;
+                baseGrid.Children.Add(pc);
+                baseGrid.Children.Add(text);
+                baseCanvas.Children.Add(baseGrid);
+                pc.Fill = new SolidColorBrush(Windows.UI.Colors.Red);
+                baseGrid.Width = 40;
+                baseGrid.Height = 40;
+                Canvas.SetLeft(baseGrid, 50 + i * 100);
+                Canvas.SetTop(baseGrid, 200 + i * 100);
+                baseGrid.PointerMoved += Entity_PointerMoved;
+                baseGrid.PointerPressed += Entity_PointerPressed;
+                baseGrid.PointerReleased += Entity_PointerReleased;
+                Computer temp = new Computer(baseGrid, pc.Name, 1);
+                entityManager.devices.Add(temp);
+            }
+            
         }
 
         /// <summary>
@@ -160,25 +163,52 @@ namespace PacketTracer
                 if (cablePointA != new Point(-1, -1) && cablePointB != new Point(-1, -1))
                 {
                     // Unless there already is a cable between the 2 devices
-                    if (connectedA.connectedTo.TryGetValue(connectedB, out Cable tempCable))
+
+                    foreach (var port in connectedA.ethernetPorts)
                     {
-                        Debug.WriteLine("Already connected");
-                    }
-                    else
-                    {
-                        // If there are free ethernet ports on both of the devices, create the cable
-                        if (connectedA.ethernetPorts.Count < connectedA.nroOfEthernetPorts && connectedB.ethernetPorts.Count < connectedB.nroOfEthernetPorts)
+                        if (port.connectedCable != null && port.connectedCable.deviceB == connectedB)
                         {
-                            EthernetCable ethernetCable = new EthernetCable(cablePointA, cablePointB);
-                            ethernetCable.deviceA = connectedA;
-                            ethernetCable.deviceB = connectedB;
-
-                            connectedA.AddCable(ethernetCable, connectedB);
-                            connectedB.AddCable(ethernetCable, connectedA);
-                            baseCanvas.Children.Add(ethernetCable.line);
+                            Debug.WriteLine("Already connected");
+                            break;
                         }
+                        else
+                        {
+                            int deviceAFreePorts = 0;
+                            int deviceBFreePorts = 0;
+                            // If there are free ethernet ports on both of the devices, create the cable
+                            foreach (var prt in connectedA.ethernetPorts)
+                            {
+                                if (prt.connectedCable == null)
+                                {
+                                    deviceAFreePorts++;
+                                }
+                            }
+                            foreach (var prt in connectedB.ethernetPorts)
+                            {
+                                if (prt.connectedCable == null)
+                                {
+                                    deviceBFreePorts++;
+                                }
+                            }
+                            if (deviceAFreePorts > 0 && deviceBFreePorts > 0)
+                            {
+                                EthernetCable ethernetCable = new EthernetCable(cablePointA, cablePointB);
+                                ethernetCable.deviceA = connectedA;
+                                ethernetCable.deviceB = connectedB;
 
+                                connectedA.AddCable(ethernetCable, connectedB);
+                                connectedB.AddCable(ethernetCable, connectedA);
+                                baseCanvas.Children.Add(ethernetCable.line);
+                                break;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("NO FREE PORTS ON DEVICE");
+                                break;
+                            }
+                        }
                     }
+
                     // Clear all cable values
                     cablePointA = new Point(-1, -1);
                     cablePointB = new Point(-1, -1);
@@ -202,11 +232,15 @@ namespace PacketTracer
                 Canvas.SetTop(senderBaseGrid, ptrPt.Position.Y - senderBaseGrid.Height / 2);
 
                 
-                if (selected.connectedTo.Count > 0)
+                //if (selected.connectedTo.Count > 0)
+                if (selected.ethernetPorts.Count > 0)
                 {
-                    foreach (var connectedPair in selected.connectedTo)
+                    foreach (var port in selected.ethernetPorts)
                     {
-                        connectedPair.Value.ReDrawCable(senderBaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()), connectedPair.Key.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()));
+                        if (port.connectedCable != null)
+                        {
+                            port.connectedCable.ReDrawCable(port.connectedCable.deviceA.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()), port.connectedCable.deviceB.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()));
+                        }
                     }
                 }
                 

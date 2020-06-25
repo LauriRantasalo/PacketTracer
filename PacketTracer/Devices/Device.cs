@@ -5,9 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Shapes;
 using System.Diagnostics;
+using Windows.UI.Xaml.Controls;
 
 using PacketTracer.Cables;
-using Windows.UI.Xaml.Controls;
+using PacketTracer.Devices.PhysicalPorts;
 
 namespace PacketTracer.Devices
 {
@@ -17,31 +18,37 @@ namespace PacketTracer.Devices
         public string name;
         public Grid baseGrid;
         public deviceType typeOfDevice;
-        /// <summary>
-        /// Simulates cable connection to device
-        /// </summary>
-        public Dictionary<Device, Cable> connectedTo = new Dictionary<Device, Cable>();
-        public int nroOfEthernetPorts;
-        /// <summary>
-        /// Simulates ethernet port connections
-        /// </summary>
-        public List<Cable> ethernetPorts;
+        public readonly int nroOfEthernetPorts;
+        public List<EthernetPort> ethernetPorts;
 
         public Device(string name, Grid baseGrid, int nroOfEthernetPorts)
         {
-            ethernetPorts = new List<Cable>();
+            ethernetPorts = new List<EthernetPort>();
             this.nroOfEthernetPorts = nroOfEthernetPorts;
+            
             this.name = name;
             this.baseGrid = baseGrid;
         }
-        
+        public void SetIpAddress(PhysicalPort port, string ipAddress)
+        {
+            port.ipAddress = ipAddress;
+        }
+
         public void AddCable(Cable cable, Device connectedDevice)
         {
-            switch (cable.type)
+            switch (cable.typeOfCable)
             {
-                case EthernetCable.cableType:
-                    connectedTo.Add(connectedDevice, cable);
-                    ethernetPorts.Add(cable);
+                case cableType.Ethernet:
+                    //connectedTo.Add(connectedDevice, cable);
+                    //ethernetPorts.Add(cable);
+                    foreach (var port in ethernetPorts)
+                    {
+                        if (port.connectedCable == null)
+                        {
+                            port.connectedCable = cable;
+                            return;
+                        }
+                    }
                     break;
                 default:
                     throw new NotImplementedException();

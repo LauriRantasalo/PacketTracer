@@ -17,7 +17,6 @@ namespace PacketTracer.Cables
         public cableType typeOfCable;
         public Point startPoint, endPoint;
         public Device deviceA, deviceB;
-        public string type;
         public Cable(Point start, Point end)
         {
             startPoint = start;

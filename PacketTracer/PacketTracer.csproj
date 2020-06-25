@@ -121,11 +121,22 @@
     </Compile>
     <Compile Include="Cables\Cable.cs" />
     <Compile Include="Cables\EthernetCable.cs" />
+    <Compile Include="ComputerConfigurationConnection.xaml.cs">
+      <DependentUpon>ComputerConfigurationConnection.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ComputerConfiguration.xaml.cs">
       <DependentUpon>ComputerConfiguration.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ComputerConfigurationConsole.xaml.cs">
+      <DependentUpon>ComputerConfigurationConsole.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ComputerConfigurationSettings.xaml.cs">
+      <DependentUpon>ComputerConfigurationSettings.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Devices\Computer.cs" />
     <Compile Include="Devices\Device.cs" />
+    <Compile Include="Devices\PhysicalPorts\EthernetPort.cs" />
+    <Compile Include="Devices\PhysicalPorts\PhysicalPort.cs" />
     <Compile Include="Devices\Router.cs" />
     <Compile Include="EntityManager.cs" />
     <Compile Include="MainPage.xaml.cs">
@@ -153,7 +164,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="ComputerConfigurationConnection.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ComputerConfiguration.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ComputerConfigurationConsole.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ComputerConfigurationSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

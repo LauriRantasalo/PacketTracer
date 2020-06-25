@@ -6,6 +6,8 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI;
+using Windows.UI.ViewManagement;
 using Windows.UI.WindowManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -30,29 +32,30 @@ namespace PacketTracer
             this.InitializeComponent();
         }
 
-        #region console
-        private void ConsoleInputText_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            TextBox txtBox = (TextBox)sender;
-
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                if (txtBox.Text.Length > 0)
-                {
-                    ConsoleTextBlock.Text += "\n" + txtBox.Text;
-                    txtBox.Text = "";
-                    
-                }
-            }
-            
-        }
-        #endregion console
-
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             entityManager = (EntityManager)e.Parameter;
+            //frame.Navigate(typeof(ComputerConfigurationConsole));
+        }
 
+        private void SettignsButton_Click(object sender, RoutedEventArgs e)
+        {
+            frame.Navigate(typeof(ComputerConfigurationSettings));
+        }
+
+        private void ConnectionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            frame.Navigate(typeof(ComputerConfigurationConnections));
+        }
+
+        private void ConsoleButton_Click(object sender, RoutedEventArgs e)
+        {
+            frame.Navigate(typeof(ComputerConfigurationConsole));
+        }
+
+        private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
         }
     }
 }
