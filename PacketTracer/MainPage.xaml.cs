@@ -92,7 +92,7 @@ namespace PacketTracer
                 baseGrid.PointerMoved += Entity_PointerMoved;
                 baseGrid.PointerPressed += Entity_PointerPressed;
                 baseGrid.PointerReleased += Entity_PointerReleased;
-                Computer temp = new Computer(baseGrid, pc.Name, 1);
+                Computer temp = new Computer(baseGrid, pc.Name, 1, "192.168.0." + (i + 1).ToString());
                 entityManager.devices.Add(temp);
             }
             
@@ -263,7 +263,17 @@ namespace PacketTracer
 
         private void CableBTN_Click(object sender, RoutedEventArgs e)
         {
+            cablePointA = new Point(-1, -1);
+            cablePointB = new Point(-1, -1);
+            connectedA = null;
+            connectedB = null;
             cableEditMode = true;
+        }
+        
+        private void PingBTN_Click(object sender, RoutedEventArgs e)
+        {
+            Computer temp = entityManager.GetComputers()[0];
+            temp.SendPing("192.168.0.2", temp.ethernetPorts[0]);
         }
     }
 }

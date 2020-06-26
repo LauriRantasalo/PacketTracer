@@ -13,16 +13,21 @@ namespace PacketTracer.Devices
 {
     public class Computer : Device
     {
-        public Computer(Grid baseGrid, string name, int nroOfEthernetPorts) : base(name, baseGrid, nroOfEthernetPorts)
+        public Computer(Grid baseGrid, string name, int nroOfEthernetPorts, string defaultEthernetPortIp) : base(name, baseGrid, nroOfEthernetPorts)
         {
             typeOfDevice = deviceType.Computer;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
             {
-                ethernetPorts.Add(new EthernetPort("NULL"));
+                if (i == 0)
+                {
+                    ethernetPorts.Add(new EthernetPort(defaultEthernetPortIp));
+                }
+                else
+                {
+                    ethernetPorts.Add(new EthernetPort("NULL"));
+                }
             }
         }
-
-        
 
     }
 }

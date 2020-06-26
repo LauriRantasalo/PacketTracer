@@ -29,6 +29,46 @@ namespace PacketTracer.Devices
             this.name = name;
             this.baseGrid = baseGrid;
         }
+
+        protected virtual void RouteMessage()
+        {
+
+        }
+
+        internal void RecievePing(string destinationIpAddress)
+        {
+            if (typeOfDevice != deviceType.Computer)
+            {
+                if (typeOfDevice == deviceType.Router)
+                {
+                }
+            }
+            else
+            {
+                // In theory it should be in the right place if it gets here but just in case
+                if (ethernetPorts[0].ipAddress == destinationIpAddress)
+                {
+                    Debug.WriteLine("Yay At: " + ethernetPorts[0].ipAddress);
+                }
+                else
+                {
+                    Debug.WriteLine("Ney At: " + ethernetPorts[0].ipAddress);
+                }
+            }
+        }
+
+        public void SendPing(string destinationIpAddress, EthernetPort port)
+        {
+            if (port.connectedCable.deviceA == this)
+            {
+                port.connectedCable.deviceB.RecievePing(destinationIpAddress);
+            }
+            else
+            {
+                port.connectedCable.deviceA.RecievePing(destinationIpAddress);
+            }
+        }
+
         public void SetIpAddress(PhysicalPort port, string ipAddress)
         {
             port.ipAddress = ipAddress;

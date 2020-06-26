@@ -14,6 +14,7 @@
         </Grid.RowDefinitions>
         <Canvas Grid.Row="0" Name="baseCanvas"/>
         <Button Name="cableBTN" Grid.Row="1" Width="200" Height="75" FontSize="30" Margin="50,0,0,0" Click="CableBTN_Click">Cable</Button>
+        <Button Name="pingBTN" Grid.Row="1" Width="200" Height="75" FontSize="30" Margin="450,0,0,0" Click="PingBTN_Click">Ping</Button>
     </Grid>
 
 </Page>
