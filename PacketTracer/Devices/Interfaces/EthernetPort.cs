@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PacketTracer.Devices.PhysicalPorts
+namespace PacketTracer.Devices.Interfaces
 {
-    public class EthernetPort : PhysicalPort
+    public class EthernetPort : PhysicalInterface
     {
         public EthernetPort(string ipAddress) : base(ipAddress)
         {
-            typeOfPhysicalPort = physicalPortType.Ethernet;
+            typeOfPhysicalInterface = physicalInterfaceType.Ethernet;
         }
     }
 }

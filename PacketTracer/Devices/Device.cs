@@ -8,7 +8,7 @@ using System.Diagnostics;
 using Windows.UI.Xaml.Controls;
 
 using PacketTracer.Cables;
-using PacketTracer.Devices.PhysicalPorts;
+using PacketTracer.Devices.Interfaces;
 
 namespace PacketTracer.Devices
 {
@@ -30,46 +30,23 @@ namespace PacketTracer.Devices
             this.baseGrid = baseGrid;
         }
 
-        protected virtual void RouteMessage()
+       
+        public void SendPacket(string destinationIpAddress, PhysicalInterface physicalInterface)
         {
-
-        }
-
-        internal void RecievePing(string destinationIpAddress)
-        {
-            if (typeOfDevice != deviceType.Computer)
+            if (physicalInterface.connectedCable != null)
             {
-                if (typeOfDevice == deviceType.Router)
+                if (physicalInterface.connectedCable.deviceA == this)
                 {
-                }
-            }
-            else
-            {
-                // In theory it should be in the right place if it gets here but just in case
-                if (ethernetPorts[0].ipAddress == destinationIpAddress)
-                {
-                    Debug.WriteLine("Yay At: " + ethernetPorts[0].ipAddress);
+                    //port.connectedCable.deviceB.RecievePing(destinationIpAddress);
                 }
                 else
                 {
-                    Debug.WriteLine("Ney At: " + ethernetPorts[0].ipAddress);
+                    //port.connectedCable.deviceA.RecievePing(destinationIpAddress);
                 }
             }
         }
 
-        public void SendPing(string destinationIpAddress, EthernetPort port)
-        {
-            if (port.connectedCable.deviceA == this)
-            {
-                port.connectedCable.deviceB.RecievePing(destinationIpAddress);
-            }
-            else
-            {
-                port.connectedCable.deviceA.RecievePing(destinationIpAddress);
-            }
-        }
-
-        public void SetIpAddress(PhysicalPort port, string ipAddress)
+        public void SetIpAddress(PhysicalInterface port, string ipAddress)
         {
             port.ipAddress = ipAddress;
         }

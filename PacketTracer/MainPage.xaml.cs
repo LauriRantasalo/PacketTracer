@@ -226,6 +226,7 @@ namespace PacketTracer
             PointerPoint ptrPt = e.GetCurrentPoint(baseCanvas);
             Device selected = entityManager.devices.Find(x => x.name == senderBaseGrid.Name);
             
+            
             if (ptrPt.Properties.IsLeftButtonPressed)
             {
                 Canvas.SetLeft(senderBaseGrid, ptrPt.Position.X - senderBaseGrid.Width / 2);
@@ -273,7 +274,7 @@ namespace PacketTracer
         private void PingBTN_Click(object sender, RoutedEventArgs e)
         {
             Computer temp = entityManager.GetComputers()[0];
-            temp.SendPing("192.168.0.2", temp.ethernetPorts[0]);
+            temp.SendPacket("192.168.0.2", temp.ethernetPorts[0]);
         }
     }
 }

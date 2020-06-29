@@ -135,8 +135,8 @@
     </Compile>
     <Compile Include="Devices\Computer.cs" />
     <Compile Include="Devices\Device.cs" />
-    <Compile Include="Devices\PhysicalPorts\EthernetPort.cs" />
-    <Compile Include="Devices\PhysicalPorts\PhysicalPort.cs" />
+    <Compile Include="Devices\Interfaces\EthernetPort.cs" />
+    <Compile Include="Devices\Interfaces\PhysicalInterface.cs" />
     <Compile Include="Devices\Router.cs" />
     <Compile Include="EntityManager.cs" />
     <Compile Include="MainPage.xaml.cs">

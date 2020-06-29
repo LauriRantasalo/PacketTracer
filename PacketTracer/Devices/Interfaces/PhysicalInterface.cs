@@ -5,15 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PacketTracer.Devices.PhysicalPorts
+namespace PacketTracer.Devices.Interfaces
 {
-    public enum physicalPortType { Ethernet, Console}
-    public class PhysicalPort
+    public enum physicalInterfaceType { Ethernet, Serial, Console}
+    public class PhysicalInterface
     {
         public string ipAddress;
-        public physicalPortType typeOfPhysicalPort;
+        public physicalInterfaceType typeOfPhysicalInterface;
         public Cable connectedCable;
-        public PhysicalPort(string ipAddress)
+        public PhysicalInterface(string ipAddress)
         {
             this.ipAddress = ipAddress;
         }

@@ -7,7 +7,8 @@ using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml.Controls;
 
 using PacketTracer.Cables;
-using PacketTracer.Devices.PhysicalPorts;
+using PacketTracer.Devices.Interfaces;
+using System.Diagnostics;
 
 namespace PacketTracer.Devices
 {
@@ -29,5 +30,16 @@ namespace PacketTracer.Devices
             }
         }
 
+        public void RecievePacket(string destinationIpAdress, PhysicalInterface physicalInterface)
+        {
+            if (this.ethernetPorts[0].ipAddress != destinationIpAdress)
+            {
+                Debug.WriteLine("Wrong place");
+            }
+            else
+            {
+                Debug.WriteLine("Right place");
+            }
+        }
     }
 }
