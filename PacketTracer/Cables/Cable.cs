@@ -35,6 +35,26 @@ namespace PacketTracer.Cables
             line.Points.Add(start);
             line.Points.Add(end);
         }
+        /// <summary>
+        /// Returns the 2 devices of connected cable so that deviceA is the deviceToSortBy
+        /// </summary>
+        /// <param name="deviceToSortBy"></param>
+        /// <returns></returns>
+        public (Device aDevice, Device bDevice) SortCableDevices(Device deviceToSortBy)
+        {
+            if (deviceA == deviceToSortBy)
+            {
+                return (deviceA, deviceB);
+            }
+            else if (deviceB == deviceToSortBy)
+            {
+                return (deviceB, deviceA);
+            }
+            else
+            {
+                return (null, null);
+            }
+        }
     }
 
     

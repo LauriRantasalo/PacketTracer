@@ -17,6 +17,9 @@ namespace PacketTracer.Devices
     {
         public string name;
         public Grid baseGrid;
+        /// <summary>
+        /// This might be useless 'cause of GetType() == typeof(Computer)
+        /// </summary>
         public deviceType typeOfDevice;
         public readonly int nroOfEthernetPorts;
         public List<EthernetPort> ethernetPorts;
@@ -35,15 +38,58 @@ namespace PacketTracer.Devices
         {
             if (physicalInterface.connectedCable != null)
             {
-                if (physicalInterface.connectedCable.deviceA == this)
+                Device deviceA, deviceB;
+                deviceA = physicalInterface.connectedCable.deviceA;
+                deviceB = physicalInterface.connectedCable.deviceB;
+                // Determines what device is on which end of cable and then calls the overriding method of RecievePacket on the derived class
+                if (deviceA == this)
                 {
-                    //port.connectedCable.deviceB.RecievePing(destinationIpAddress);
+                    if (deviceB.GetType() == typeof(Computer))
+                    {
+                        Computer temp = (Computer)deviceB;
+                        temp.RecievePacket(destinationIpAddress, physicalInterface);
+                    }
+                    else if (deviceB.GetType() == typeof(Router))
+                    {
+                        Router temp = (Router)deviceB;
+                        temp.RecievePacket(destinationIpAddress, physicalInterface);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+                else if (deviceB == this)
+                {
+                    if (deviceA.GetType() == typeof(Computer))
+                    {
+                        Computer temp = (Computer)deviceA;
+                        temp.RecievePacket(destinationIpAddress, physicalInterface);
+                    }
+                    else if (deviceA.GetType() == typeof(Router))
+                    {
+                        Router temp = (Router)deviceA;
+                        temp.RecievePacket(destinationIpAddress, physicalInterface);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
                 }
                 else
                 {
-                    //port.connectedCable.deviceA.RecievePing(destinationIpAddress);
+                    throw new NotImplementedException();
                 }
             }
+        }
+        /// <summary>
+        /// I don't know if this needs to be virtual or not but just keeping it this way for now
+        /// </summary>
+        /// <param name="destinationIpAdress"></param>
+        /// <param name="physicalInterface"></param>
+        public virtual void RecievePacket(string destinationIpAdress, PhysicalInterface physicalInterface)
+        {
+
         }
 
         public void SetIpAddress(PhysicalInterface port, string ipAddress)
@@ -53,16 +99,32 @@ namespace PacketTracer.Devices
 
         public void AddCable(Cable cable, Device connectedDevice)
         {
+            (Device deviceA, Device deviceB) = cable.SortCableDevices(this);
             switch (cable.typeOfCable)
             {
                 case cableType.Ethernet:
-                    //connectedTo.Add(connectedDevice, cable);
-                    //ethernetPorts.Add(cable);
                     foreach (var port in ethernetPorts)
                     {
                         if (port.connectedCable == null)
                         {
-                            port.connectedCable = cable;
+                            if (typeOfDevice == deviceType.Router)
+                            {
+                                Router temp = (Router)this;
+                                string subnet = port.ipAddress.Remove(port.ipAddress.LastIndexOf("."));
+                                string nextHopIp = deviceB.ethernetPorts[0].ipAddress;
+                                // TODO: This need to take into consideration that subnets might be less than the first 3 segments of the address
+                                if (subnet == nextHopIp.Remove(nextHopIp.LastIndexOf(".")))
+                                {
+                                    nextHopIp = "LOCAL";
+                                }
+
+                                temp.AddNewRoute(subnet + ".0", nextHopIp, port);
+                                port.connectedCable = cable;
+                            }
+                            else
+                            {
+                                port.connectedCable = cable;
+                            }
                             return;
                         }
                     }

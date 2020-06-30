@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Shapes;
+using System.Diagnostics;
 
 using PacketTracer.Devices.Interfaces;
 namespace PacketTracer.Devices
@@ -18,11 +19,16 @@ namespace PacketTracer.Devices
         public Router(Grid baseGrid, string name, int nroOfEthernetPorts) : base(name, baseGrid, nroOfEthernetPorts)
         {
             typeOfDevice = deviceType.Router;
+            for (int i = 0; i < this.nroOfEthernetPorts; i++)
+            {
+                ethernetPorts.Add(new EthernetPort("192.168.0.10"));
+            }
         }
 
-        public void RecievePacket(string destinationIpAdress, PhysicalInterface physicalInterface)
+        public override void RecievePacket(string destinationIpAdress, PhysicalInterface physicalInterface)
         {
-
+            Debug.WriteLine("Check routing table");
+            //base.RecievePacket(destinationIpAdress, physicalInterface);
         }
 
         /// <summary>
@@ -34,7 +40,8 @@ namespace PacketTracer.Devices
         public void AddNewRoute(string subnet, string nextHopIP, PhysicalInterface physicalInterface)
         {
             routingTable.Add((subnet, nextHopIP, physicalInterface));
-            // Possible routing protocol here?
+            Debug.WriteLine(routingTable[0]);
+            // Possible routing protocol begins here?
         }
     }
 }
