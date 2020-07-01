@@ -38,6 +38,25 @@ namespace PacketTracer.Devices
         {
             if (physicalInterface.connectedCable != null)
             {
+                (Device aDebvice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
+
+                if(bDevice.GetType() == typeof(Computer))
+                {
+                    Computer temp = (Computer)bDevice;
+                    temp.RecievePacket(destinationIpAddress, physicalInterface);
+                }
+                else if (bDevice.GetType() == typeof(Router))
+                {
+                    Router temp = (Router)bDevice;
+                    temp.RecievePacket(destinationIpAddress, physicalInterface);
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+                #region old
+                /*
+
                 Device deviceA, deviceB;
                 deviceA = physicalInterface.connectedCable.deviceA;
                 deviceB = physicalInterface.connectedCable.deviceB;
@@ -80,7 +99,10 @@ namespace PacketTracer.Devices
                 {
                     throw new NotImplementedException();
                 }
+                */
+                #endregion
             }
+
         }
         /// <summary>
         /// I don't know if this needs to be virtual or not but just keeping it this way for now
