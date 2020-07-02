@@ -137,7 +137,7 @@ namespace PacketTracer.Devices
                                 // TODO: This need to take into consideration that subnets might be less than the first 3 segments of the address
                                 if (subnet == nextHopIp.Remove(nextHopIp.LastIndexOf(".")))
                                 {
-                                    nextHopIp = "LOCAL";
+                                    //nextHopIp = "LOCAL";
                                 }
 
                                 temp.AddNewRoute(subnet + ".0", nextHopIp, port);
