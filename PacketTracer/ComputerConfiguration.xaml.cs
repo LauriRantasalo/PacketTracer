@@ -41,17 +41,17 @@ namespace PacketTracer
 
         private void SettignsButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationSettings));
+            frame.Navigate(typeof(ComputerConfigurationSettings), entityManager);
         }
 
         private void ConnectionsButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationConnections));
+            frame.Navigate(typeof(ComputerConfigurationConnections), entityManager);
         }
 
         private void ConsoleButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationConsole));
+            frame.Navigate(typeof(ComputerConfigurationConsole), entityManager);
         }
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)

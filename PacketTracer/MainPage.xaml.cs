@@ -95,7 +95,17 @@ namespace PacketTracer
                 Computer temp = new Computer(baseGrid, pc.Name, 1, "192.168.0." + (i + 1).ToString());
                 entityManager.devices.Add(temp);
             }
-            
+
+            foreach (var computer in entityManager.GetComputers())
+            {
+                EthernetCable ethernetCable = new EthernetCable(computer.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point(0, 0)), tempR.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point(0,0)));
+                ethernetCable.deviceA = computer;
+                ethernetCable.deviceB = tempR;
+
+                computer.AddCable(ethernetCable, tempR);
+                tempR.AddCable(ethernetCable, computer);
+                baseCanvas.Children.Add(ethernetCable.line);
+            }
         }
 
         /// <summary>
@@ -253,13 +263,24 @@ namespace PacketTracer
 
         }
 
-        private async void OptionsBTN_Clicked(object sender, RoutedEventArgs e)
+        public async void OpenDeviceConfigurationWindow()
         {
             AppWindow appWindow = await AppWindow.TryCreateAsync();
             Frame frame = new Frame();
             frame.Navigate(typeof(ComputerConfiguration), entityManager);
             ElementCompositionPreview.SetAppWindowContent(appWindow, frame);
             await appWindow.TryShowAsync();
+        }
+        private void OptionsBTN_Clicked(object sender, RoutedEventArgs e)
+        {
+            OpenDeviceConfigurationWindow();
+            /*
+             * AppWindow appWindow = await AppWindow.TryCreateAsync();
+            Frame frame = new Frame();
+            frame.Navigate(typeof(ComputerConfiguration), entityManager);
+            ElementCompositionPreview.SetAppWindowContent(appWindow, frame);
+            await appWindow.TryShowAsync();
+             */
         }
 
         private void CableBTN_Click(object sender, RoutedEventArgs e)
@@ -275,6 +296,12 @@ namespace PacketTracer
         {
             Computer temp = entityManager.GetComputers()[0];
             temp.SendPacket("192.168.0.2", temp.ethernetPorts[0]);
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+
+            OpenDeviceConfigurationWindow();
         }
     }
 }

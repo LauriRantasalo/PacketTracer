@@ -71,7 +71,7 @@ namespace PacketTracer.Devices
         public void AddNewRoute(string subnet, string nextHopIP, PhysicalInterface physicalInterface)
         {
             routingTable.Add((subnet, nextHopIP, physicalInterface));
-            Debug.WriteLine(routingTable[0]);
+            Debug.WriteLine("From " + this.name + ": " + routingTable[0]);
             // Possible routing protocol begins here?
         }
     }

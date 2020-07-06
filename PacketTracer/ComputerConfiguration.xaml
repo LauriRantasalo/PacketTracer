@@ -11,14 +11,14 @@
     <Grid Name="baseGrid">
         <Grid.RowDefinitions>
             <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="9*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Name="consoleButton" Width="200" Height="75" Margin="50,0,0,0" Grid.Row="0" Grid.Column="0" Click="ConsoleButton_Click">Console</Button>
-        <Button Name="connectionsButton" Width="200" Height="75" Margin="350,0,0,0" Grid.Row="0" Grid.Column="0" Click="ConnectionsButton_Click">Connections</Button>
-        <Button Name="settignsButton" Width="200" Height="75" Margin="650,0,0,0" Grid.Row="0" Grid.Column="0" Click="SettignsButton_Click">Settings</Button>
-        <Frame x:Name="frame" Background="Gray" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <Button Name="consoleButton" Width="200" Height="75" Margin="50,0,0,0" Grid.Column="0" Click="ConsoleButton_Click">Console</Button>
+        <Button Name="connectionsButton" Width="200" Height="75" Margin="350,0,0,0" Grid.Column="0" Click="ConnectionsButton_Click">Connections</Button>
+        <Button Name="settignsButton" Width="200" Height="75" Margin="650,0,0,0" Grid.Column="0" Click="SettignsButton_Click">Settings</Button>
+        <Frame x:Name="frame" Background="Gray" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="400" Width="600" />
     </Grid>
 </Page>
