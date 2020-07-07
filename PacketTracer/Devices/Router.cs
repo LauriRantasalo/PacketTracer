@@ -30,7 +30,7 @@ namespace PacketTracer.Devices
         /// </summary>
         /// <param name="destinationIpAdress"></param>
         /// <param name="physicalInterface">source physical interface</param>
-        public override void RecievePacket(string destinationIpAdress, PhysicalInterface physicalInterface)
+        public override void RecievePacket(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
         {
             Debug.WriteLine("Checking routing table");
             string destinationSubnet = destinationIpAdress.Remove(destinationIpAdress.LastIndexOf(".")) + ".0";
@@ -43,17 +43,28 @@ namespace PacketTracer.Devices
                 
                 if (routingTableRow.nextHop == destinationIpAdress)
                 {
-                    Debug.WriteLine("Routing packet to destination ip");
-                    // Routes  the packet to next router according to the routing table
-                    bDevice.RecievePacket(destinationIpAdress, routingTableRow.physicalInterface);
+                    Debug.WriteLine("Routing " + echoType + " from: " + sourceIpAdress + " to: " + destinationIpAdress);
                     noRoute = false;
-                    break;
+                    // Routes  the packet to next router according to the routing table
+                    bDevice.RecievePacket(destinationIpAdress, sourceIpAdress, routingTableRow.physicalInterface, echoType);
                 }// If there is a subnet match to destination subnet and it is not the sending devices address
                 else if (routingTableRow.subnet == destinationSubnet && routingTableRow.nextHop != physicalInterface.ipAddress)
                 {
                     // Hop to next router
+                    //throw new NotImplementedException();
                 }
             }
+            // This does not work
+            foreach (var port in ethernetPorts)
+            {
+                if (port.ipAddress == destinationIpAdress)
+                {
+                    noRoute = false;
+                    (Device aDevice, Device bDevice) = port.connectedCable.SortCableDevices(this);
+                    bDevice.RecievePacket(sourceIpAdress, port.ipAddress, port, "Echo reply");
+                }
+            }
+
 
             if (noRoute)
             {

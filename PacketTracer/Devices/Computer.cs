@@ -30,18 +30,9 @@ namespace PacketTracer.Devices
             }
         }
 
-        public override void RecievePacket(string destinationIpAdress, PhysicalInterface physicalInterface)
+        public override void RecievePacket(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
         {
-            if (ethernetPorts[0].ipAddress != destinationIpAdress)
-            {
-                Debug.WriteLine("Wrong place");
-                Debug.WriteLine(destinationIpAdress + " _ " + ethernetPorts[0].ipAddress);
-            }
-            else
-            {
-                Debug.WriteLine("Right place");
-            }
-            //base.RecievePacket(destinationIpAdress, physicalInterface);
+            base.RecievePacket(destinationIpAdress, sourceIpAdress, physicalInterface, echoType);
         }
     }
 }

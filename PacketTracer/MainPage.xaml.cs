@@ -300,8 +300,6 @@ namespace PacketTracer
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-
-            OpenDeviceConfigurationWindow();
         }
     }
 }

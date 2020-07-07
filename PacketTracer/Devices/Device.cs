@@ -43,75 +43,52 @@ namespace PacketTracer.Devices
                 if(bDevice.GetType() == typeof(Computer))
                 {
                     Computer temp = (Computer)bDevice;
-                    temp.RecievePacket(destinationIpAddress, physicalInterface);
+                    temp.RecievePacket(destinationIpAddress, physicalInterface.ipAddress, physicalInterface, "Echo request");
                 }
                 else if (bDevice.GetType() == typeof(Router))
                 {
                     Router temp = (Router)bDevice;
-                    temp.RecievePacket(destinationIpAddress, physicalInterface);
+                    temp.RecievePacket(destinationIpAddress, physicalInterface.ipAddress, physicalInterface, "Echo request");
                 }
                 else
                 {
                     throw new NotImplementedException();
                 }
-                #region old
-                /*
-
-                Device deviceA, deviceB;
-                deviceA = physicalInterface.connectedCable.deviceA;
-                deviceB = physicalInterface.connectedCable.deviceB;
-                // Determines what device is on which end of cable and then calls the overriding method of RecievePacket on the derived class
-                if (deviceA == this)
-                {
-                    if (deviceB.GetType() == typeof(Computer))
-                    {
-                        Computer temp = (Computer)deviceB;
-                        temp.RecievePacket(destinationIpAddress, physicalInterface);
-                    }
-                    else if (deviceB.GetType() == typeof(Router))
-                    {
-                        Router temp = (Router)deviceB;
-                        temp.RecievePacket(destinationIpAddress, physicalInterface);
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
-                }
-                else if (deviceB == this)
-                {
-                    if (deviceA.GetType() == typeof(Computer))
-                    {
-                        Computer temp = (Computer)deviceA;
-                        temp.RecievePacket(destinationIpAddress, physicalInterface);
-                    }
-                    else if (deviceA.GetType() == typeof(Router))
-                    {
-                        Router temp = (Router)deviceA;
-                        temp.RecievePacket(destinationIpAddress, physicalInterface);
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-                */
-                #endregion
             }
-
         }
         /// <summary>
-        /// I don't know if this needs to be virtual or not but just keeping it this way for now
+        /// This is made only for computers right now, need to take routers and other devices into consideration
         /// </summary>
         /// <param name="destinationIpAdress"></param>
+        /// <param name="sourceIpAdress"></param>
         /// <param name="physicalInterface"></param>
-        public virtual void RecievePacket(string destinationIpAdress, PhysicalInterface physicalInterface)
+        /// <param name="echoType"></param>
+        public virtual void RecievePacket(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
         {
+            if (ethernetPorts[0].ipAddress != destinationIpAdress)
+            {
+                Debug.WriteLine("Wrong place");
+                Debug.WriteLine(destinationIpAdress + " _ " + ethernetPorts[0].ipAddress);
+                throw new NotSupportedException();
+            }
+            else
+            {
 
+                (Device aDevice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
+                if (echoType == "Echo request")
+                {
+                    Debug.WriteLine("Right place request");
+                    bDevice.RecievePacket(sourceIpAdress, ethernetPorts[0].ipAddress, ethernetPorts[0], "Echo reply");
+                }
+                else if (echoType == "Echo reply")
+                {
+                    Debug.WriteLine("Right place reply");
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
 
         public void SetIpAddress(PhysicalInterface port, string ipAddress)

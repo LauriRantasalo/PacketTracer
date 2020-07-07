@@ -45,14 +45,15 @@ namespace PacketTracer
                 if (txtBox.Text.Length > 0)
                 {
                     ConsoleTextBlock.Text += "\n" + txtBox.Text;
-                    ExecuteConsoleCommand(txtBox.Text);
+                    ParseConsoleCommand(txtBox.Text);
                     txtBox.Text = "";
 
                 }
             }
 
         }
-        private void ExecuteConsoleCommand(string command)
+        // TODO: Think about making all commands have a class of their own?
+        private void ParseConsoleCommand(string command)
         {
             List<string> commandParts = new List<string>();
             commandParts = command.Split(" ").ToList<string>();
@@ -99,11 +100,8 @@ namespace PacketTracer
                 }
                 
             }
-
-            sourceDevice.SendPacket(destinationIp, sourceDevice.ethernetPorts[0]);
-
-
-            sourceDevice = null;
+            // ConsoleTextBlock.Text += "\n" +
+           sourceDevice.SendPacket(destinationIp, sourceDevice.ethernetPorts[0]);
         }
     }
 }
