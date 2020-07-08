@@ -26,7 +26,9 @@ using Windows.UI.Xaml.Shapes;
 using PacketTracer.Devices;
 using PacketTracer.Cables;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
+// Number of commits made just to keep Github pretty: 1
+// Collection of excuses to not work on this project:
+// 1. Sick
 namespace PacketTracer
 {
     /// <summary>
