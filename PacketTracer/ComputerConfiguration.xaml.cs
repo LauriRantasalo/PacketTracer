@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PacketTracer.Devices;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -27,6 +28,7 @@ namespace PacketTracer
     public sealed partial class ComputerConfiguration : Page
     {
         EntityManager entityManager;
+        Device device;
         public ComputerConfiguration()
         {
             this.InitializeComponent();
@@ -35,23 +37,23 @@ namespace PacketTracer
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            entityManager = (EntityManager)e.Parameter;
+            (entityManager, device) = ((EntityManager, Device))e.Parameter;
             //frame.Navigate(typeof(ComputerConfigurationConsole));
         }
 
         private void SettignsButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationSettings), entityManager);
+            frame.Navigate(typeof(ComputerConfigurationSettings), (entityManager, device));
         }
 
         private void ConnectionsButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationConnections), entityManager);
+            frame.Navigate(typeof(ComputerConfigurationConnections), (entityManager, device));
         }
 
         private void ConsoleButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationConsole), entityManager);
+            frame.Navigate(typeof(ComputerConfigurationConsole), (entityManager, device));
         }
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)

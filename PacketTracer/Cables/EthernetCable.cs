@@ -14,7 +14,7 @@ namespace PacketTracer.Cables
     {
        public EthernetCable(Point start, Point end) : base(start, end)
        {
-            typeOfCable = cableType.Ethernet;
+            TypeOfCable = cableType.Ethernet;
        }
 
         

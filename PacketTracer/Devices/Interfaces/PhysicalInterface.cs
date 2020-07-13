@@ -10,9 +10,9 @@ namespace PacketTracer.Devices.Interfaces
     public enum physicalInterfaceType { Ethernet, Serial, Console}
     public class PhysicalInterface
     {
-        public string ipAddress;
-        public physicalInterfaceType typeOfPhysicalInterface;
-        public Cable connectedCable;
+        public string ipAddress { get; set; }
+        public physicalInterfaceType typeOfPhysicalInterface { get; set; }
+        public Cable connectedCable { get; set; }
         public PhysicalInterface(string ipAddress)
         {
             this.ipAddress = ipAddress;

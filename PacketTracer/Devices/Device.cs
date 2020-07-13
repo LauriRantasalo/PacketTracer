@@ -9,28 +9,30 @@ using Windows.UI.Xaml.Controls;
 
 using PacketTracer.Cables;
 using PacketTracer.Devices.Interfaces;
+using PacketTracer.Devices.Console;
 
 namespace PacketTracer.Devices
 {
     public enum deviceType{Computer, Router, Switch};
     public class Device
     {
-        public string name;
-        public Grid baseGrid;
+        public string Name { get; set; }
         /// <summary>
         /// This might be useless 'cause of GetType() == typeof(Computer)
         /// </summary>
-        public deviceType typeOfDevice;
-        public readonly int nroOfEthernetPorts;
-        public List<EthernetPort> ethernetPorts;
+        public deviceType TypeOfDevice { get; set; }
+        public Terminal Terminal { get; set; }
+        public List<EthernetPort> EthernetPorts { get; set; }
+        public int nroOfEthernetPorts { get; }
+        public Grid BaseGrid { get; set; }
 
         public Device(string name, Grid baseGrid, int nroOfEthernetPorts)
         {
-            ethernetPorts = new List<EthernetPort>();
+            EthernetPorts = new List<EthernetPort>();
             this.nroOfEthernetPorts = nroOfEthernetPorts;
             
-            this.name = name;
-            this.baseGrid = baseGrid;
+            Name = name;
+            BaseGrid = baseGrid;
         }
 
        
@@ -65,10 +67,10 @@ namespace PacketTracer.Devices
         /// <param name="echoType"></param>
         public virtual void RecievePacket(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
         {
-            if (ethernetPorts[0].ipAddress != destinationIpAdress)
+            if (EthernetPorts[0].ipAddress != destinationIpAdress)
             {
                 Debug.WriteLine("Wrong place");
-                Debug.WriteLine(destinationIpAdress + " _ " + ethernetPorts[0].ipAddress);
+                Debug.WriteLine(destinationIpAdress + " _ " + EthernetPorts[0].ipAddress);
                 throw new NotSupportedException();
             }
             else
@@ -78,7 +80,7 @@ namespace PacketTracer.Devices
                 if (echoType == "Echo request")
                 {
                     Debug.WriteLine("Right place request");
-                    bDevice.RecievePacket(sourceIpAdress, ethernetPorts[0].ipAddress, ethernetPorts[0], "Echo reply");
+                    bDevice.RecievePacket(sourceIpAdress, EthernetPorts[0].ipAddress, EthernetPorts[0], "Echo reply");
                 }
                 else if (echoType == "Echo reply")
                 {
@@ -99,18 +101,18 @@ namespace PacketTracer.Devices
         public void AddCable(Cable cable, Device connectedDevice)
         {
             (Device deviceA, Device deviceB) = cable.SortCableDevices(this);
-            switch (cable.typeOfCable)
+            switch (cable.TypeOfCable)
             {
                 case cableType.Ethernet:
-                    foreach (var port in ethernetPorts)
+                    foreach (var port in EthernetPorts)
                     {
                         if (port.connectedCable == null)
                         {
-                            if (typeOfDevice == deviceType.Router)
+                            if (TypeOfDevice == deviceType.Router)
                             {
                                 Router temp = (Router)this;
                                 string subnet = port.ipAddress.Remove(port.ipAddress.LastIndexOf("."));
-                                string nextHopIp = deviceB.ethernetPorts[0].ipAddress;
+                                string nextHopIp = deviceB.EthernetPorts[0].ipAddress;
                                 // TODO: This need to take into consideration that subnets might be less than the first 3 segments of the address
                                 if (subnet == nextHopIp.Remove(nextHopIp.LastIndexOf(".")))
                                 {

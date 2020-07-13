@@ -25,7 +25,7 @@ namespace PacketTracer
     public sealed partial class ComputerConfigurationConsole : Page
     {
         EntityManager entityManager;
-        string[] commands = {"ping"};
+        Device device;
         public ComputerConfigurationConsole()
         {
             this.InitializeComponent();
@@ -33,7 +33,8 @@ namespace PacketTracer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            entityManager = (EntityManager)e.Parameter;
+            (entityManager, device) = ((EntityManager, Device))e.Parameter;
+            ConsoleInputText.Text = device.Name;
             base.OnNavigatedTo(e);
         }
         private void ConsoleInputText_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -45,47 +46,24 @@ namespace PacketTracer
                 if (txtBox.Text.Length > 0)
                 {
                     ConsoleTextBlock.Text += "\n" + txtBox.Text;
-                    ParseConsoleCommand(txtBox.Text);
+                    ConsoleTextBlock.Text += "\n" + device.Terminal.ExecuteCommand(txtBox.Text);
                     txtBox.Text = "";
 
                 }
             }
 
         }
-        // TODO: Think about making all commands have a class of their own?
-        private void ParseConsoleCommand(string command)
-        {
-            List<string> commandParts = new List<string>();
-            commandParts = command.Split(" ").ToList<string>();
-            foreach (var item in commands)
-            {
-                if (item == commandParts[0])
-                {
-                    switch (item)
-                    {
-                        case "ping":
-                            PingCommand(commandParts[1], commandParts[2]);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                else
-                {
-                    ConsoleTextBlock.Text += "\n" + "Command " + commandParts[0] + " not found";
-                }
-            }
-        }
+       
 
 
         private void PingCommand(string sourceIp, string destinationIp)
         {
             Device sourceDevice = null;
-            foreach (var device in entityManager.devices)
+            foreach (var device in entityManager.Devices)
             {
                 if (sourceDevice == null)
                 {
-                    foreach (var port in device.ethernetPorts)
+                    foreach (var port in device.EthernetPorts)
                     {
                         if (port.ipAddress == sourceIp)
                         {
@@ -101,7 +79,7 @@ namespace PacketTracer
                 
             }
             // ConsoleTextBlock.Text += "\n" +
-           sourceDevice.SendPacket(destinationIp, sourceDevice.ethernetPorts[0]);
+           sourceDevice.SendPacket(destinationIp, sourceDevice.EthernetPorts[0]);
         }
     }
 }

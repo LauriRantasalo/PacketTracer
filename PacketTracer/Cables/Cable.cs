@@ -13,27 +13,29 @@ namespace PacketTracer.Cables
     public enum cableType {Ethernet, Console};
     public class Cable
     {
-        public Polyline line;
-        public cableType typeOfCable;
-        public Point startPoint, endPoint;
-        public Device deviceA, deviceB;
+        private Point startPoint;
+        private Point endPoint;
+        public Polyline CableLine { get; set; }
+        public cableType TypeOfCable { get; set; }
+        public Device DeviceA { get; set; }
+        public Device DeviceB{ get; set; }
         public Cable(Point start, Point end)
         {
             startPoint = start;
             endPoint = end;
-            line = new Polyline();
-            line.Points.Add(startPoint);
-            line.Points.Add(endPoint);
+            CableLine = new Polyline();
+            CableLine.Points.Add(startPoint);
+            CableLine.Points.Add(endPoint);
 
-            line.Stroke = new SolidColorBrush(Windows.UI.Colors.Green);
-            line.StrokeThickness = 4;
+            CableLine.Stroke = new SolidColorBrush(Windows.UI.Colors.Green);
+            CableLine.StrokeThickness = 4;
         }
 
         public void ReDrawCable(Point start, Point end)
         {
-            line.Points.Clear();
-            line.Points.Add(start);
-            line.Points.Add(end);
+            CableLine.Points.Clear();
+            CableLine.Points.Add(start);
+            CableLine.Points.Add(end);
         }
         /// <summary>
         /// Returns the 2 devices of connected cable so that deviceA is the deviceToSortBy
@@ -42,13 +44,13 @@ namespace PacketTracer.Cables
         /// <returns></returns>
         public (Device aDevice, Device bDevice) SortCableDevices(Device deviceToSortBy)
         {
-            if (deviceA == deviceToSortBy)
+            if (DeviceA == deviceToSortBy)
             {
-                return (deviceA, deviceB);
+                return (DeviceA, DeviceB);
             }
-            else if (deviceB == deviceToSortBy)
+            else if (DeviceB == deviceToSortBy)
             {
-                return (deviceB, deviceA);
+                return (DeviceB, DeviceA);
             }
             else
             {

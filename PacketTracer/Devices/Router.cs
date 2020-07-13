@@ -8,6 +8,8 @@ using Windows.UI.Xaml.Shapes;
 using System.Diagnostics;
 
 using PacketTracer.Devices.Interfaces;
+using PacketTracer.Devices.Console;
+
 namespace PacketTracer.Devices
 {
     public class Router : Device
@@ -18,11 +20,12 @@ namespace PacketTracer.Devices
         List<(string subnet, string nextHop, PhysicalInterface physicalInterface)> routingTable = new List<(string, string, PhysicalInterface)>();
         public Router(Grid baseGrid, string name, int nroOfEthernetPorts) : base(name, baseGrid, nroOfEthernetPorts)
         {
-            typeOfDevice = deviceType.Router;
+            TypeOfDevice = deviceType.Router;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
             {
-                ethernetPorts.Add(new EthernetPort("192.168.0." + (10 + i).ToString()));
+                EthernetPorts.Add(new EthernetPort("192.168.0." + (10 + i).ToString()));
             }
+            Terminal = new RouterTerminal(this);
         }
 
         /// <summary>
@@ -55,7 +58,7 @@ namespace PacketTracer.Devices
                 }
             }
             // This does not work
-            foreach (var port in ethernetPorts)
+            foreach (var port in EthernetPorts)
             {
                 if (port.ipAddress == destinationIpAdress)
                 {
@@ -82,7 +85,7 @@ namespace PacketTracer.Devices
         public void AddNewRoute(string subnet, string nextHopIP, PhysicalInterface physicalInterface)
         {
             routingTable.Add((subnet, nextHopIP, physicalInterface));
-            Debug.WriteLine("From " + this.name + ": " + routingTable[0]);
+            Debug.WriteLine("From " + this.Name + ": " + routingTable[0]);
             // Possible routing protocol begins here?
         }
     }

@@ -25,19 +25,16 @@ using Windows.UI.Xaml.Shapes;
 
 using PacketTracer.Devices;
 using PacketTracer.Cables;
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+using PacketTracer.Devices.Console;
 // Number of commits made just to keep Github pretty: 3
 // Collection of excuses to not work on this project:
 // 1. Sick x3
 namespace PacketTracer
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         EntityManager entityManager = new EntityManager();
-        public bool cableEditMode = false;
+        bool cableEditMode = false;
         Point cablePointA = new Point(-1, -1);
         Device connectedA;
         Point cablePointB = new Point(-1, -1);
@@ -58,8 +55,8 @@ namespace PacketTracer
             Grid baseGrid = new Grid();
             Rectangle router = new Rectangle();
             TextBlock text = new TextBlock();
-            router.Name = "router1";
-            baseGrid.Name = "router1";
+            router.Name = "router0";
+            baseGrid.Name = "router0";
             text.Text = router.Name;
             baseGrid.Children.Add(router);
             baseGrid.Children.Add(text);
@@ -73,7 +70,7 @@ namespace PacketTracer
             baseGrid.PointerPressed += Entity_PointerPressed;
             baseGrid.PointerReleased += Entity_PointerReleased;
             Router tempR = new Router(baseGrid, router.Name, 4);
-            entityManager.devices.Add(tempR);
+            entityManager.Devices.Add(tempR);
 
             for (int i = 0; i < 3; i++)
             {
@@ -95,18 +92,18 @@ namespace PacketTracer
                 baseGrid.PointerPressed += Entity_PointerPressed;
                 baseGrid.PointerReleased += Entity_PointerReleased;
                 Computer temp = new Computer(baseGrid, pc.Name, 1, "192.168.0." + (i + 1).ToString());
-                entityManager.devices.Add(temp);
+                entityManager.Devices.Add(temp);
             }
 
             foreach (var computer in entityManager.GetComputers())
             {
-                EthernetCable ethernetCable = new EthernetCable(computer.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point(0, 0)), tempR.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point(0,0)));
-                ethernetCable.deviceA = computer;
-                ethernetCable.deviceB = tempR;
+                EthernetCable ethernetCable = new EthernetCable(computer.BaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point(0, 0)), tempR.BaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point(0,0)));
+                ethernetCable.DeviceA = computer;
+                ethernetCable.DeviceB = tempR;
 
                 computer.AddCable(ethernetCable, tempR);
                 tempR.AddCable(ethernetCable, computer);
-                baseCanvas.Children.Add(ethernetCable.line);
+                baseCanvas.Children.Add(ethernetCable.CableLine);
             }
         }
 
@@ -134,6 +131,7 @@ namespace PacketTracer
                 optionsGrid.RowDefinitions.Add(new RowDefinition());
 
                 TextBlock nameText = new TextBlock();
+                nameText.Name = "nameText";
                 Button consoleBTN = new Button();
                 Button connectionsBTN = new Button();
                 Button settingsBTN = new Button();
@@ -160,7 +158,7 @@ namespace PacketTracer
 
             if (ptrPt.Properties.IsLeftButtonPressed && cableEditMode)
             {
-                Device selected = entityManager.devices.Find(computer => computer.name == senderBaseGrid.Name);
+                Device selected = entityManager.Devices.Find(computer => computer.Name == senderBaseGrid.Name);
                 if (cablePointA == new Point(-1,-1))
                 {
                     cablePointA = senderBaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point());
@@ -176,9 +174,9 @@ namespace PacketTracer
                 {
                     // Unless there already is a cable between the 2 devices
 
-                    foreach (var port in connectedA.ethernetPorts)
+                    foreach (var port in connectedA.EthernetPorts)
                     {
-                        if (port.connectedCable != null && port.connectedCable.deviceB == connectedB)
+                        if (port.connectedCable != null && port.connectedCable.DeviceB == connectedB)
                         {
                             Debug.WriteLine("Already connected");
                             break;
@@ -188,14 +186,14 @@ namespace PacketTracer
                             int deviceAFreePorts = 0;
                             int deviceBFreePorts = 0;
                             // If there are free ethernet ports on both of the devices, create the cable
-                            foreach (var prt in connectedA.ethernetPorts)
+                            foreach (var prt in connectedA.EthernetPorts)
                             {
                                 if (prt.connectedCable == null)
                                 {
                                     deviceAFreePorts++;
                                 }
                             }
-                            foreach (var prt in connectedB.ethernetPorts)
+                            foreach (var prt in connectedB.EthernetPorts)
                             {
                                 if (prt.connectedCable == null)
                                 {
@@ -205,12 +203,12 @@ namespace PacketTracer
                             if (deviceAFreePorts > 0 && deviceBFreePorts > 0)
                             {
                                 EthernetCable ethernetCable = new EthernetCable(cablePointA, cablePointB);
-                                ethernetCable.deviceA = connectedA;
-                                ethernetCable.deviceB = connectedB;
+                                ethernetCable.DeviceA = connectedA;
+                                ethernetCable.DeviceB = connectedB;
 
                                 connectedA.AddCable(ethernetCable, connectedB);
                                 connectedB.AddCable(ethernetCable, connectedA);
-                                baseCanvas.Children.Add(ethernetCable.line);
+                                baseCanvas.Children.Add(ethernetCable.CableLine);
                                 break;
                             }
                             else
@@ -236,7 +234,7 @@ namespace PacketTracer
         {
             Grid senderBaseGrid = (Grid)sender;
             PointerPoint ptrPt = e.GetCurrentPoint(baseCanvas);
-            Device selected = entityManager.devices.Find(x => x.name == senderBaseGrid.Name);
+            Device selected = entityManager.Devices.Find(x => x.Name == senderBaseGrid.Name);
             
             
             if (ptrPt.Properties.IsLeftButtonPressed)
@@ -246,13 +244,13 @@ namespace PacketTracer
 
                 
                 //if (selected.connectedTo.Count > 0)
-                if (selected.ethernetPorts.Count > 0)
+                if (selected.EthernetPorts.Count > 0)
                 {
-                    foreach (var port in selected.ethernetPorts)
+                    foreach (var port in selected.EthernetPorts)
                     {
                         if (port.connectedCable != null)
                         {
-                            port.connectedCable.ReDrawCable(port.connectedCable.deviceA.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()), port.connectedCable.deviceB.baseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()));
+                            port.connectedCable.ReDrawCable(port.connectedCable.DeviceA.BaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()), port.connectedCable.DeviceB.BaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()));
                         }
                     }
                 }
@@ -265,24 +263,29 @@ namespace PacketTracer
 
         }
 
-        public async void OpenDeviceConfigurationWindow()
+        public async void OpenDeviceConfigurationWindow(string deviceName)
         {
+            Device deviceToConfigure = entityManager.GetDeviceByName(deviceName);
+
             AppWindow appWindow = await AppWindow.TryCreateAsync();
             Frame frame = new Frame();
-            frame.Navigate(typeof(ComputerConfiguration), entityManager);
+            frame.Navigate(typeof(ComputerConfiguration), (entityManager, deviceToConfigure));
             ElementCompositionPreview.SetAppWindowContent(appWindow, frame);
             await appWindow.TryShowAsync();
         }
         private void OptionsBTN_Clicked(object sender, RoutedEventArgs e)
         {
-            OpenDeviceConfigurationWindow();
-            /*
-             * AppWindow appWindow = await AppWindow.TryCreateAsync();
-            Frame frame = new Frame();
-            frame.Navigate(typeof(ComputerConfiguration), entityManager);
-            ElementCompositionPreview.SetAppWindowContent(appWindow, frame);
-            await appWindow.TryShowAsync();
-             */
+            Button btn = (Button)sender;
+            Grid parent = VisualTreeHelper.GetParent(btn) as Grid;
+            foreach (FrameworkElement child in parent.Children)
+            {
+                if (child.Name == "nameText")
+                {
+                    TextBlock temp = (TextBlock)child;
+                    OpenDeviceConfigurationWindow(temp.Text);
+                    break;
+                }
+            }
         }
 
         private void CableBTN_Click(object sender, RoutedEventArgs e)
@@ -294,12 +297,6 @@ namespace PacketTracer
             cableEditMode = true;
         }
         
-        private void PingBTN_Click(object sender, RoutedEventArgs e)
-        {
-            Computer temp = entityManager.GetComputers()[0];
-            temp.SendPacket("192.168.0.2", temp.ethernetPorts[0]);
-        }
-
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
         }

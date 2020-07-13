@@ -134,10 +134,17 @@
       <DependentUpon>ComputerConfigurationSettings.xaml</DependentUpon>
     </Compile>
     <Compile Include="Devices\Computer.cs" />
+    <Compile Include="Devices\Console\Commands\ConsoleCommand.cs" />
+    <Compile Include="Devices\Console\Commands\ICommand.cs" />
+    <Compile Include="Devices\Console\Commands\PingCommand.cs" />
+    <Compile Include="Devices\Console\Commands\UnknownCommand.cs" />
+    <Compile Include="Devices\Console\ComputerTerminal.cs" />
+    <Compile Include="Devices\Console\RouterTerminal.cs" />
     <Compile Include="Devices\Device.cs" />
     <Compile Include="Devices\Interfaces\EthernetPort.cs" />
     <Compile Include="Devices\Interfaces\PhysicalInterface.cs" />
     <Compile Include="Devices\Router.cs" />
+    <Compile Include="Devices\Console\Terminal.cs" />
     <Compile Include="EntityManager.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
