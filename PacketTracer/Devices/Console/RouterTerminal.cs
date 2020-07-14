@@ -8,7 +8,7 @@ namespace PacketTracer.Devices.Console
 {
     public class RouterTerminal : Terminal
     {
-        public RouterTerminal(Device device) : base(device)
+        public RouterTerminal(UIManager uiManager, Device device) : base(uiManager, device)
         {
 
         }

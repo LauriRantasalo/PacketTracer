@@ -15,7 +15,7 @@ namespace PacketTracer.Devices
 {
     public class Computer : Device
     {
-        public Computer(Grid baseGrid, string name, int nroOfEthernetPorts, string defaultEthernetPortIp) : base(name, baseGrid, nroOfEthernetPorts)
+        public Computer(UIManager uiManager, Grid baseGrid, string name, int nroOfEthernetPorts, string defaultEthernetPortIp) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
         {
             TypeOfDevice = deviceType.Computer;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
@@ -30,7 +30,7 @@ namespace PacketTracer.Devices
                 }
             }
 
-            Terminal = new ComputerTerminal(this);
+            Terminal = new ComputerTerminal(uiManager, this);
         }
 
         public override void RecievePacket(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)

@@ -18,14 +18,14 @@ namespace PacketTracer.Devices
         /// [subnet, next-hop, interface]
         /// </summary>
         List<(string subnet, string nextHop, PhysicalInterface physicalInterface)> routingTable = new List<(string, string, PhysicalInterface)>();
-        public Router(Grid baseGrid, string name, int nroOfEthernetPorts) : base(name, baseGrid, nroOfEthernetPorts)
+        public Router(UIManager uiManager, Grid baseGrid, string name, int nroOfEthernetPorts) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
         {
             TypeOfDevice = deviceType.Router;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
             {
                 EthernetPorts.Add(new EthernetPort("192.168.0." + (10 + i).ToString()));
             }
-            Terminal = new RouterTerminal(this);
+            Terminal = new RouterTerminal(uiManager, this);
         }
 
         /// <summary>

@@ -1,31 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI;
-using Windows.UI.Core;
 using Windows.UI.Input;
-using Windows.UI.ViewManagement;
 using Windows.UI.WindowManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 
 using PacketTracer.Devices;
 using PacketTracer.Cables;
-using PacketTracer.Devices.Console;
 // Number of commits made just to keep Github pretty: 3
 // Collection of excuses to not work on this project:
 // 1. Sick x3
@@ -34,6 +20,8 @@ namespace PacketTracer
     public sealed partial class MainPage : Page
     {
         EntityManager entityManager = new EntityManager();
+        UIManager uiManager = new UIManager();
+
         bool cableEditMode = false;
         Point cablePointA = new Point(-1, -1);
         Device connectedA;
@@ -44,6 +32,7 @@ namespace PacketTracer
         public MainPage()
         {
             this.InitializeComponent();
+            uiManager.Pages.Add(this);
             CreateDevices();
         }
 
@@ -69,7 +58,7 @@ namespace PacketTracer
             baseGrid.PointerMoved += Entity_PointerMoved;
             baseGrid.PointerPressed += Entity_PointerPressed;
             baseGrid.PointerReleased += Entity_PointerReleased;
-            Router tempR = new Router(baseGrid, router.Name, 4);
+            Router tempR = new Router(uiManager, baseGrid, router.Name, 4);
             entityManager.Devices.Add(tempR);
 
             for (int i = 0; i < 3; i++)
@@ -91,7 +80,7 @@ namespace PacketTracer
                 baseGrid.PointerMoved += Entity_PointerMoved;
                 baseGrid.PointerPressed += Entity_PointerPressed;
                 baseGrid.PointerReleased += Entity_PointerReleased;
-                Computer temp = new Computer(baseGrid, pc.Name, 1, "192.168.0." + (i + 1).ToString());
+                Computer temp = new Computer(uiManager, baseGrid, pc.Name, 1, "192.168.0." + (i + 1).ToString());
                 entityManager.Devices.Add(temp);
             }
 
@@ -269,7 +258,7 @@ namespace PacketTracer
 
             AppWindow appWindow = await AppWindow.TryCreateAsync();
             Frame frame = new Frame();
-            frame.Navigate(typeof(ComputerConfiguration), (entityManager, deviceToConfigure));
+            frame.Navigate(typeof(ComputerConfiguration), (entityManager, uiManager, deviceToConfigure));
             ElementCompositionPreview.SetAppWindowContent(appWindow, frame);
             await appWindow.TryShowAsync();
         }

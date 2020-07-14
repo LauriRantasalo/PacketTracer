@@ -14,10 +14,11 @@ namespace PacketTracer.Devices.Console.Commands
             Synonyms = new string[] { "ping"};
         }
 
-
-        public override string Execute(List<string> commandParts)
+        // Ex: ping 192.168.0.3
+        public override string Execute(Device sourceDevice, List<string> commandParts)
         {
-            return "pingPong";
+            string destinationAddress = commandParts[1];
+            return sourceDevice.SendPacket(destinationAddress, sourceDevice.EthernetPorts[0]);
         }
     }
 }

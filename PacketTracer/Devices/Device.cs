@@ -16,6 +16,7 @@ namespace PacketTracer.Devices
     public enum deviceType{Computer, Router, Switch};
     public class Device
     {
+        UIManager uiManager;
         public string Name { get; set; }
         /// <summary>
         /// This might be useless 'cause of GetType() == typeof(Computer)
@@ -26,17 +27,17 @@ namespace PacketTracer.Devices
         public int nroOfEthernetPorts { get; }
         public Grid BaseGrid { get; set; }
 
-        public Device(string name, Grid baseGrid, int nroOfEthernetPorts)
+        public Device(UIManager uiManager, string name, Grid baseGrid, int nroOfEthernetPorts)
         {
             EthernetPorts = new List<EthernetPort>();
             this.nroOfEthernetPorts = nroOfEthernetPorts;
-            
+            this.uiManager = uiManager;
             Name = name;
             BaseGrid = baseGrid;
         }
 
        
-        public void SendPacket(string destinationIpAddress, PhysicalInterface physicalInterface)
+        public string SendPacket(string destinationIpAddress, PhysicalInterface physicalInterface)
         {
             if (physicalInterface.connectedCable != null)
             {
@@ -46,17 +47,20 @@ namespace PacketTracer.Devices
                 {
                     Computer temp = (Computer)bDevice;
                     temp.RecievePacket(destinationIpAddress, physicalInterface.ipAddress, physicalInterface, "Echo request");
+                    return "Pinging " + destinationIpAddress + " from " + physicalInterface.ipAddress;
                 }
                 else if (bDevice.GetType() == typeof(Router))
                 {
                     Router temp = (Router)bDevice;
                     temp.RecievePacket(destinationIpAddress, physicalInterface.ipAddress, physicalInterface, "Echo request");
+                    return "Pinging " + destinationIpAddress + " from " + physicalInterface.ipAddress;
                 }
                 else
                 {
                     throw new NotImplementedException();
                 }
             }
+            return "No ethernet cable connected";
         }
         /// <summary>
         /// This is made only for computers right now, need to take routers and other devices into consideration
@@ -79,12 +83,11 @@ namespace PacketTracer.Devices
                 (Device aDevice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
                 if (echoType == "Echo request")
                 {
-                    Debug.WriteLine("Right place request");
                     bDevice.RecievePacket(sourceIpAdress, EthernetPorts[0].ipAddress, EthernetPorts[0], "Echo reply");
                 }
                 else if (echoType == "Echo reply")
                 {
-                    Debug.WriteLine("Right place reply");
+                    Terminal.TerminalOutput += "\n" + "Reply from " + sourceIpAdress;
                 }
                 else
                 {

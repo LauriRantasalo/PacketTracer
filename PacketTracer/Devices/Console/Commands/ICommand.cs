@@ -9,6 +9,6 @@ namespace PacketTracer.Devices.Console.Commands
     interface ICommand
     {
         string[] Synonyms { get; set; }
-        string Execute(List<string> commandParts);
+        string Execute(Device sourceDevice, List<string> commandParts);
     }
 }

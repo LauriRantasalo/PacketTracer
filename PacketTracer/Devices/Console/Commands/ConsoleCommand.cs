@@ -10,7 +10,7 @@ namespace PacketTracer.Devices.Console.Commands
     {
         public string[] Synonyms { get; set; }
 
-        public virtual string Execute(List<string> commandParts)
+        public virtual string Execute(Device sourceDevice, List<string> commandParts)
         {
             return "base";
         }

@@ -10,7 +10,7 @@ namespace PacketTracer.Devices.Console.Commands
     {
         public string[] Synonyms { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public string Execute(List<string> commandParts)
+        public string Execute(Device sourceDevice, List<string> commandParts)
         {
             throw new NotImplementedException();
         }

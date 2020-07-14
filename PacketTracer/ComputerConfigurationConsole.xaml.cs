@@ -25,6 +25,7 @@ namespace PacketTracer
     public sealed partial class ComputerConfigurationConsole : Page
     {
         EntityManager entityManager;
+        UIManager uiManager;
         Device device;
         public ComputerConfigurationConsole()
         {
@@ -33,8 +34,12 @@ namespace PacketTracer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            (entityManager, device) = ((EntityManager, Device))e.Parameter;
-            ConsoleInputText.Text = device.Name;
+            (entityManager, uiManager, device) = ((EntityManager, UIManager, Device))e.Parameter;
+            if (!uiManager.Pages.Contains(this))
+            {
+                uiManager.Pages.Add(this);
+            }
+            ConsoleTextBlock.Text = device.Terminal.TerminalOutput;
             base.OnNavigatedTo(e);
         }
         private void ConsoleInputText_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -53,33 +58,6 @@ namespace PacketTracer
             }
 
         }
-       
-
-
-        private void PingCommand(string sourceIp, string destinationIp)
-        {
-            Device sourceDevice = null;
-            foreach (var device in entityManager.Devices)
-            {
-                if (sourceDevice == null)
-                {
-                    foreach (var port in device.EthernetPorts)
-                    {
-                        if (port.ipAddress == sourceIp)
-                        {
-                            sourceDevice = device;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    break;
-                }
-                
-            }
-            // ConsoleTextBlock.Text += "\n" +
-           sourceDevice.SendPacket(destinationIp, sourceDevice.EthernetPorts[0]);
-        }
+        
     }
 }

@@ -28,7 +28,8 @@ namespace PacketTracer
     public sealed partial class ComputerConfiguration : Page
     {
         EntityManager entityManager;
-        Device device;
+        UIManager uiManager;
+        public Device Device { get; set; }
         public ComputerConfiguration()
         {
             this.InitializeComponent();
@@ -37,23 +38,27 @@ namespace PacketTracer
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            (entityManager, device) = ((EntityManager, Device))e.Parameter;
+            (entityManager, uiManager, Device) = ((EntityManager, UIManager, Device))e.Parameter;
+            if (!uiManager.Pages.Contains(this))
+            {
+                uiManager.Pages.Add(this);
+            }
             //frame.Navigate(typeof(ComputerConfigurationConsole));
         }
 
         private void SettignsButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationSettings), (entityManager, device));
+            ContentFrame.Navigate(typeof(ComputerConfigurationSettings), (entityManager, uiManager, Device));
         }
 
         private void ConnectionsButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationConnections), (entityManager, device));
+            ContentFrame.Navigate(typeof(ComputerConfigurationConnections), (entityManager, uiManager, Device));
         }
 
         private void ConsoleButton_Click(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(typeof(ComputerConfigurationConsole), (entityManager, device));
+            ContentFrame.Navigate(typeof(ComputerConfigurationConsole), (entityManager, uiManager, Device));
         }
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)

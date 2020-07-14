@@ -1,25 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using PacketTracer.Devices.Console.Commands;
+
 namespace PacketTracer.Devices.Console
 {
     public class Terminal
     {
-        protected List<ConsoleCommand> CommandHistory { get; }
-        public string TerminalOutput { get; }
+        UIManager uiManager;
+        protected List<ConsoleCommand> CommandHistory { get; set; }
+
+        private string terminalOutput = "";
+        public string TerminalOutput
+        {
+            get
+            {
+                return terminalOutput;
+            }
+            set
+            {
+                if (value != null)
+                {
+                    //Debug.WriteLine("value was not null: " + value + " in " + device.EthernetPorts[0].ipAddress);
+                    terminalOutput = value;
+                    ComputerConfiguration temp = uiManager.GetComputerConfigurationWindow(device);
+                    if (temp != null && temp.ContentFrame.Content.GetType() == typeof(ComputerConfigurationConsole))
+                    {
+                        ComputerConfigurationConsole console = (ComputerConfigurationConsole)temp.ContentFrame.Content;
+                        uiManager.UpdateActiveConsoleAsync(console, value);
+                    }
+                }
+            }
+        }
 
         private ConsoleCommand[] computerCommands;
-        private ConsoleCommand[] routerCommands = { new PingCommand() };
+        private ConsoleCommand[] routerCommands;
         private Device device;
-        public Terminal(Device device)
+        public Terminal(UIManager uiManager, Device device)
         {
             computerCommands = new ConsoleCommand[] { new PingCommand() };
+            routerCommands = new ConsoleCommand[] { new PingCommand() };
             this.device = device;
+            this.uiManager = uiManager;
+            TerminalOutput = "";
         }
        
 
@@ -34,9 +58,8 @@ namespace PacketTracer.Devices.Console
                     {
                         if (commandParts[0].ToLower() == computerCommand.Synonyms[0])
                         {
-                            return computerCommand.Execute(commandParts);
+                            return computerCommand.Execute(device, commandParts);
                         }
-                        Debug.WriteLine("I dont think this should happen whit just one command in computercommands");
                     }
                     return commandParts[0] + " is not regognized as a computer command";
                 case deviceType.Router:
