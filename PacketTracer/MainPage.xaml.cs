@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
 using PacketTracer.Devices;
+using PacketTracer.Devices.Routers;
 using PacketTracer.Cables;
 // Number of commits made just to keep Github pretty: 3
 // Collection of excuses to not work on this project:
@@ -96,11 +97,6 @@ namespace PacketTracer
             }
         }
 
-        /// <summary>
-        /// Gets run whenever an entity (computer, router, switch) is clicked on
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Entity_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             PointerPoint ptrPt = e.GetCurrentPoint(baseCanvas);
@@ -252,7 +248,7 @@ namespace PacketTracer
 
         }
 
-        public async void OpenDeviceConfigurationWindow(string deviceName)
+        public async void OpenDeviceConfigurationWindowAsync(string deviceName)
         {
             Device deviceToConfigure = entityManager.GetDeviceByName(deviceName);
 
@@ -262,6 +258,7 @@ namespace PacketTracer
             ElementCompositionPreview.SetAppWindowContent(appWindow, frame);
             await appWindow.TryShowAsync();
         }
+
         private void OptionsBTN_Clicked(object sender, RoutedEventArgs e)
         {
             Button btn = (Button)sender;
@@ -271,7 +268,7 @@ namespace PacketTracer
                 if (child.Name == "nameText")
                 {
                     TextBlock temp = (TextBlock)child;
-                    OpenDeviceConfigurationWindow(temp.Text);
+                    OpenDeviceConfigurationWindowAsync(temp.Text);
                     break;
                 }
             }

@@ -43,7 +43,6 @@ namespace PacketTracer.Devices.Console
             routerCommands = new ConsoleCommand[] { new PingCommand() };
             this.device = device;
             this.uiManager = uiManager;
-            TerminalOutput = "";
         }
        
 

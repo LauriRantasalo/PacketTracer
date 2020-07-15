@@ -35,7 +35,26 @@ namespace PacketTracer.Devices
 
         public override void RecievePacket(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
         {
-            base.RecievePacket(destinationIpAdress, sourceIpAdress, physicalInterface, echoType);
+            foreach (var port in EthernetPorts)
+            {
+                if (port.ipAddress == destinationIpAdress)
+                {
+                    (Device aDevice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
+                    if (echoType == "Echo request")
+                    {
+                        bDevice.RecievePacket(sourceIpAdress, EthernetPorts[0].ipAddress, EthernetPorts[0], "Echo reply");
+                    }
+                    else if (echoType == "Echo reply")
+                    {
+                        Terminal.TerminalOutput += "\n" + "Reply from " + sourceIpAdress;
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                    return;
+                }
+            }
         }
     }
 }

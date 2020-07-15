@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using PacketTracer.Devices;
+using PacketTracer.Devices.Routers;
 
 namespace PacketTracer
 {

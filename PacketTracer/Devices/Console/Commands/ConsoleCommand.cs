@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace PacketTracer.Devices.Console.Commands
 {
-    public class ConsoleCommand : ICommand
+    public abstract class ConsoleCommand
     {
         public string[] Synonyms { get; set; }
 
-        public virtual string Execute(Device sourceDevice, List<string> commandParts)
-        {
-            return "base";
-        }
+        public abstract string Execute(Device sourceDevice, List<string> commandParts);
     }
 }
