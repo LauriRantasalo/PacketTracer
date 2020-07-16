@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 using PacketTracer.Devices.Interfaces;
 using PacketTracer.Devices.Console;
+using System.Threading.Tasks;
 
 namespace PacketTracer.Devices.Routers
 {
@@ -30,17 +31,43 @@ namespace PacketTracer.Devices.Routers
         /// </summary>
         /// <param name="destinationIpAdress"></param>
         /// <param name="physicalInterface">last device physical interface</param>
-        public override void RecievePacket(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
+        public async override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
         {
+            await Task.Delay(100);
+            bool isDestinationDevice = false;
+            foreach (var port in EthernetPorts)
+            {
+                if (port != null && port.ipAddress == packet.DestinationIpAddress)
+                {
+                    isDestinationDevice = true;
+                    (Device iDevice, Device jDevice) = port.connectedCable.SortCableDevices(this);
+                    packet.ToReply();
+                    jDevice.RecievePacketAsync(packet, port);
+                    break;
+                }
+            }
+
+            if (!isDestinationDevice)
+            {
+                RoutingTableRow routingTableRow = CheckRoutingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
+
+                (Device aDevice, Device bDevice) = routingTableRow.PhysicalInterface.connectedCable.SortCableDevices(this);
+                bDevice.RecievePacketAsync(packet, routingTableRow.PhysicalInterface);
+            }
+
+        }
+        /*
+        public async override void RecievePacketAsync(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
+        {
+            await Task.Delay(100);
             bool isDestinationDevice = false;
             foreach (var port in EthernetPorts)
             {
                 if (port != null && port.ipAddress == destinationIpAdress)
                 {
-                    Debug.WriteLine("here");
                     isDestinationDevice = true;
                     (Device iDevice, Device jDevice) = port.connectedCable.SortCableDevices(this);
-                    jDevice.RecievePacket(sourceIpAdress, port.ipAddress, port, "Echo reply");
+                    jDevice.RecievePacketAsync(sourceIpAdress, port.ipAddress, port, "Echo reply");
                     break;
                 }
             }
@@ -50,25 +77,24 @@ namespace PacketTracer.Devices.Routers
                 RoutingTableRow routingTableRow = CheckRoutingTable(destinationIpAdress, sourceIpAdress, physicalInterface, echoType);
 
                 (Device aDevice, Device bDevice) = routingTableRow.PhysicalInterface.connectedCable.SortCableDevices(this);
-                bDevice.RecievePacket(destinationIpAdress, sourceIpAdress, routingTableRow.PhysicalInterface, echoType);
+                bDevice.RecievePacketAsync(destinationIpAdress, sourceIpAdress, routingTableRow.PhysicalInterface, echoType);
             }
             
         }
-
+        */
         /// <summary>
         /// Checks if there is a known route and returns routing table row
         /// </summary>
         /// <returns></returns>
-        public RoutingTableRow CheckRoutingTable(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
+        public RoutingTableRow CheckRoutingTable(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface)
         {
-            Debug.WriteLine("Checking routing table");
             string destinationSubnet = destinationIpAdress.Remove(destinationIpAdress.LastIndexOf(".")) + ".0";
             bool noRoute = true;
             foreach (var routingTableRow in routingTable)
             {
                 if (routingTableRow.NextHop == destinationIpAdress)
                 {
-                    Debug.WriteLine("Routing " + echoType + " from: " + sourceIpAdress + " to: " + destinationIpAdress);
+                    //Debug.WriteLine("Routing " + echoType + " from: " + sourceIpAdress + " to: " + destinationIpAdress);
                     noRoute = false;
                     return routingTableRow;
                 }// If there is a subnet match to destination subnet and it is not the sending devices address

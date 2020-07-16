@@ -40,8 +40,9 @@ namespace PacketTracer
         {
             await Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                console.ConsoleTextBlock.Text += value;
+                Debug.WriteLine("updating console");
+                console.ConsoleTextBlock.Text = value;
             });
-        }
+        } 
     }
 }

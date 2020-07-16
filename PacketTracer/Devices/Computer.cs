@@ -33,8 +33,42 @@ namespace PacketTracer.Devices
             Terminal = new ComputerTerminal(uiManager, this);
         }
 
-        public override void RecievePacket(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
+        public async override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
         {
+            await Task.Delay(100);
+            foreach (var port in EthernetPorts)
+            {
+                if (port.ipAddress == packet.DestinationIpAddress)
+                {
+                    (Device aDevice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
+                    if (packet.EchoType == "Echo request")
+                    {
+                        packet.ToReply();
+                        bDevice.RecievePacketAsync(packet, EthernetPorts[0]);
+                    }
+                    else if (packet.EchoType == "Echo reply")
+                    {
+
+                        Terminal.TerminalOutput += "\n" + "Reply from " + packet.SourceIpAddress + ": Time: " + (DateTime.Now - packet.SendTime).ToString();
+                        packet.ToRequest();
+                        if (packet.NroOfRoundsDone < packet.MaxNroOfRounds)
+                        {
+                            packet.SendTime = DateTime.Now;
+                            bDevice.RecievePacketAsync(packet, EthernetPorts[0]);
+                        }
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                    return;
+                }
+            }
+        }
+        /*
+         * public async override void RecievePacketAsync(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
+        {
+            await Task.Delay(100);
             foreach (var port in EthernetPorts)
             {
                 if (port.ipAddress == destinationIpAdress)
@@ -42,7 +76,7 @@ namespace PacketTracer.Devices
                     (Device aDevice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
                     if (echoType == "Echo request")
                     {
-                        bDevice.RecievePacket(sourceIpAdress, EthernetPorts[0].ipAddress, EthernetPorts[0], "Echo reply");
+                        bDevice.RecievePacketAsync(sourceIpAdress, EthernetPorts[0].ipAddress, EthernetPorts[0], "Echo reply");
                     }
                     else if (echoType == "Echo reply")
                     {
@@ -56,5 +90,6 @@ namespace PacketTracer.Devices
                 }
             }
         }
+         */
     }
 }

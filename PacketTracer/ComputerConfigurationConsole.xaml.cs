@@ -2,9 +2,12 @@
 using PacketTracer.Devices;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -35,11 +38,14 @@ namespace PacketTracer
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             (entityManager, uiManager, device) = ((EntityManager, UIManager, Device))e.Parameter;
+            /*
             if (!uiManager.Pages.Contains(this))
             {
                 uiManager.Pages.Add(this);
             }
-            ConsoleTextBlock.Text = device.Terminal.TerminalOutput;
+            */
+            uiManager.UpdateActiveConsoleAsync(this, device.Terminal.TerminalOutput);
+            //ConsoleTextBlock.Text = device.Terminal.TerminalOutput;
             base.OnNavigatedTo(e);
         }
         private void ConsoleInputText_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -50,8 +56,8 @@ namespace PacketTracer
             {
                 if (txtBox.Text.Length > 0)
                 {
-                    ConsoleTextBlock.Text += "\n" + txtBox.Text;
-                    ConsoleTextBlock.Text += "\n" + device.Terminal.ExecuteCommand(txtBox.Text);
+                    device.Terminal.TerminalOutput += "\n" + txtBox.Text;
+                    device.Terminal.TerminalOutput += "\n" + device.Terminal.ExecuteCommand(txtBox.Text);
                     txtBox.Text = "";
 
                 }

@@ -140,6 +140,7 @@
     <Compile Include="Devices\Console\RouterTerminal.cs" />
     <Compile Include="Devices\Device.cs" />
     <Compile Include="Devices\Interfaces\EthernetPort.cs" />
+    <Compile Include="Devices\Interfaces\Packet.cs" />
     <Compile Include="Devices\Interfaces\PhysicalInterface.cs" />
     <Compile Include="Devices\Routers\Router.cs" />
     <Compile Include="Devices\Console\Terminal.cs" />
