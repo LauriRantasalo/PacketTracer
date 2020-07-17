@@ -23,7 +23,7 @@ namespace PacketTracer.Devices.Console
             {
                 if (value != null)
                 {
-                    Debug.WriteLine("value: " + value + "\nEOF");
+                    //Debug.WriteLine("value: " + value + "\nEOF");
                     terminalOutput = value;
                     ComputerConfiguration temp = uiManager.GetComputerConfigurationWindow(device);
                     if (temp != null && temp.ContentFrame.Content.GetType() == typeof(ComputerConfigurationConsole))

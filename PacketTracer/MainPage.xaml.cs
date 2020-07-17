@@ -44,12 +44,18 @@ namespace PacketTracer
         {
             Grid baseGrid = new Grid();
             Rectangle router = new Rectangle();
+            RowDefinition row = new RowDefinition();
+            row.Height = new GridLength(7);
+            baseGrid.RowDefinitions.Add(row);
+            baseGrid.RowDefinitions.Add(new RowDefinition());
+            Grid.SetRowSpan(router, 2);
+
             TextBlock text = new TextBlock();
-            router.Name = "router0";
             baseGrid.Name = "router0";
+            router.Name = baseGrid.Name;
             text.Text = router.Name;
-            baseGrid.Children.Add(router);
             baseGrid.Children.Add(text);
+            baseGrid.Children.Add(router);
             baseCanvas.Children.Add(baseGrid);
             router.Fill = new SolidColorBrush(Windows.UI.Colors.Blue);
             baseGrid.Width = 40;
@@ -60,6 +66,20 @@ namespace PacketTracer
             baseGrid.PointerPressed += Entity_PointerPressed;
             baseGrid.PointerReleased += Entity_PointerReleased;
             Router tempR = new Router(uiManager, baseGrid, router.Name, 4);
+            for (int i = 0; i < tempR.nroOfEthernetPorts; i++)
+            {
+                baseGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                Rectangle portIndicator = new Rectangle();
+                portIndicator.Fill = new SolidColorBrush(Windows.UI.Colors.Red);
+                portIndicator.Width = 7;
+                portIndicator.Height = 7;
+                baseGrid.Children.Add(portIndicator);
+                Grid.SetColumn(portIndicator, i);
+                Grid.SetRow(portIndicator, 0);
+            }
+            Grid.SetColumnSpan(router, tempR.nroOfEthernetPorts);
+            Grid.SetColumnSpan(text, tempR.nroOfEthernetPorts);
+            Grid.SetRowSpan(text, 2);
             entityManager.Devices.Add(tempR);
 
             for (int i = 0; i < 3; i++)
@@ -161,7 +181,7 @@ namespace PacketTracer
 
                     foreach (var port in connectedA.EthernetPorts)
                     {
-                        if (port.connectedCable != null && port.connectedCable.DeviceB == connectedB)
+                        if (port.ConnectedCable != null && port.ConnectedCable.DeviceB == connectedB)
                         {
                             Debug.WriteLine("Already connected");
                             break;
@@ -173,14 +193,14 @@ namespace PacketTracer
                             // If there are free ethernet ports on both of the devices, create the cable
                             foreach (var prt in connectedA.EthernetPorts)
                             {
-                                if (prt.connectedCable == null)
+                                if (prt.ConnectedCable == null)
                                 {
                                     deviceAFreePorts++;
                                 }
                             }
                             foreach (var prt in connectedB.EthernetPorts)
                             {
-                                if (prt.connectedCable == null)
+                                if (prt.ConnectedCable == null)
                                 {
                                     deviceBFreePorts++;
                                 }
@@ -233,9 +253,9 @@ namespace PacketTracer
                 {
                     foreach (var port in selected.EthernetPorts)
                     {
-                        if (port.connectedCable != null)
+                        if (port.ConnectedCable != null)
                         {
-                            port.connectedCable.ReDrawCable(port.connectedCable.DeviceA.BaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()), port.connectedCable.DeviceB.BaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()));
+                            port.ConnectedCable.ReDrawCable(port.ConnectedCable.DeviceA.BaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()), port.ConnectedCable.DeviceB.BaseGrid.TransformToVisual(baseCanvas).TransformPoint(new Point()));
                         }
                     }
                 }

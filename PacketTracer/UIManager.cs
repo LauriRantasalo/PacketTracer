@@ -40,7 +40,7 @@ namespace PacketTracer
         {
             await Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                Debug.WriteLine("updating console");
+                //Debug.WriteLine("updating console");
                 console.ConsoleTextBlock.Text = value;
             });
         } 

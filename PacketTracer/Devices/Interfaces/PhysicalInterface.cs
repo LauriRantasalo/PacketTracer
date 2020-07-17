@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace PacketTracer.Devices.Interfaces
 {
-    public enum physicalInterfaceType { Ethernet, Serial, Console}
+    public enum PhysicalInterfaceType { Ethernet, Serial, Console}
     public class PhysicalInterface
     {
-        public string ipAddress { get; set; }
-        public physicalInterfaceType typeOfPhysicalInterface { get; set; }
-        public Cable connectedCable { get; set; }
-        public PhysicalInterface(string ipAddress)
+        public string IpAddress { get; set; }
+        public PhysicalInterfaceType TypeOfPhysicalInterface { get; set; }
+        public Cable ConnectedCable { get; set; }
+        public string InterfaceName { get; set; }
+        public PhysicalInterface(string ipAddress, string interfaceName)
         {
-            this.ipAddress = ipAddress;
+            IpAddress = ipAddress;
+            InterfaceName = interfaceName;
         }
     }
 }

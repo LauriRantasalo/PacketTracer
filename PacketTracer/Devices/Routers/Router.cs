@@ -21,7 +21,7 @@ namespace PacketTracer.Devices.Routers
             TypeOfDevice = deviceType.Router;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
             {
-                EthernetPorts.Add(new EthernetPort("192.168.0." + (10 + i).ToString()));
+                EthernetPorts.Add(new EthernetPort("192.168.0." + (10 + i).ToString(), "Gi0/" + i.ToString()));
             }
             Terminal = new RouterTerminal(uiManager, this);
         }
@@ -37,12 +37,13 @@ namespace PacketTracer.Devices.Routers
             bool isDestinationDevice = false;
             foreach (var port in EthernetPorts)
             {
-                if (port != null && port.ipAddress == packet.DestinationIpAddress)
+                if (port != null && port.IpAddress == packet.DestinationIpAddress)
                 {
                     isDestinationDevice = true;
-                    (Device iDevice, Device jDevice) = port.connectedCable.SortCableDevices(this);
+                    (Device iDevice, Device jDevice) = port.ConnectedCable.SortCableDevices(this);
                     packet.ToReply();
-                    jDevice.RecievePacketAsync(packet, port);
+                    RoutingTableRow tempRow = CheckRoutingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
+                    SendPacket(packet, tempRow.PhysicalInterface);
                     break;
                 }
             }
@@ -51,37 +52,12 @@ namespace PacketTracer.Devices.Routers
             {
                 RoutingTableRow routingTableRow = CheckRoutingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
 
-                (Device aDevice, Device bDevice) = routingTableRow.PhysicalInterface.connectedCable.SortCableDevices(this);
-                bDevice.RecievePacketAsync(packet, routingTableRow.PhysicalInterface);
+                (Device aDevice, Device bDevice) = routingTableRow.PhysicalInterface.ConnectedCable.SortCableDevices(this);
+                SendPacket(packet, routingTableRow.PhysicalInterface);
             }
 
         }
-        /*
-        public async override void RecievePacketAsync(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType)
-        {
-            await Task.Delay(100);
-            bool isDestinationDevice = false;
-            foreach (var port in EthernetPorts)
-            {
-                if (port != null && port.ipAddress == destinationIpAdress)
-                {
-                    isDestinationDevice = true;
-                    (Device iDevice, Device jDevice) = port.connectedCable.SortCableDevices(this);
-                    jDevice.RecievePacketAsync(sourceIpAdress, port.ipAddress, port, "Echo reply");
-                    break;
-                }
-            }
 
-            if (!isDestinationDevice)
-            {
-                RoutingTableRow routingTableRow = CheckRoutingTable(destinationIpAdress, sourceIpAdress, physicalInterface, echoType);
-
-                (Device aDevice, Device bDevice) = routingTableRow.PhysicalInterface.connectedCable.SortCableDevices(this);
-                bDevice.RecievePacketAsync(destinationIpAdress, sourceIpAdress, routingTableRow.PhysicalInterface, echoType);
-            }
-            
-        }
-        */
         /// <summary>
         /// Checks if there is a known route and returns routing table row
         /// </summary>
@@ -98,7 +74,7 @@ namespace PacketTracer.Devices.Routers
                     noRoute = false;
                     return routingTableRow;
                 }// If there is a subnet match to destination subnet and it is not the sending devices address
-                else if (routingTableRow.Subnet == destinationSubnet && routingTableRow.NextHop != physicalInterface.ipAddress)
+                else if (routingTableRow.Subnet == destinationSubnet && routingTableRow.NextHop != physicalInterface.IpAddress)
                 {
                     // Hop to next router
                     //throw new NotImplementedException();
@@ -117,10 +93,12 @@ namespace PacketTracer.Devices.Routers
         public void AddNewRoutingTableRoute(string subnet, string nextHopIP, PhysicalInterface physicalInterface)
         {
             routingTable.Add(new RoutingTableRow(subnet, nextHopIP, physicalInterface));
+            /*
             foreach (var item in routingTable)
             {
                 Debug.WriteLine(item.Subnet + " " + item.NextHop + " " + item.PhysicalInterface.ipAddress);
             }
+            */
             //Debug.WriteLine("From " + this.Name + ": " + routingTable[0]);
             // Possible routing protocol begins here?
         }

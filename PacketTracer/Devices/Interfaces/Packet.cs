@@ -6,36 +6,42 @@ using System.Threading.Tasks;
 
 namespace PacketTracer.Devices.Interfaces
 {
+    public enum PacketType { icmp, tcp, udp}
+
     public class Packet
     {
         public string DestinationIpAddress { get; set; }
         public string SourceIpAddress{ get; set; }
         public string EchoType { get; set; }
         public DateTime SendTime { get; set; }
+        public PacketType TypeOfPacket { get; set; }
         public int NroOfRoundsDone = 0;
         public int MaxNroOfRounds = 4;
-        public Packet(string destAddress, string srcAddress, string echoType)
+        public Packet(string destAddress, string srcAddress, PacketType typeOfPacket, string echoType)
         {
             DestinationIpAddress = destAddress;
             SourceIpAddress = srcAddress;
             EchoType = echoType;
             SendTime = DateTime.Now;
+            TypeOfPacket = typeOfPacket;
         }
 
-        public void ToReply()
+        public Packet ToReply()
         {
             string tempDest = DestinationIpAddress;
             DestinationIpAddress = SourceIpAddress;
             SourceIpAddress = tempDest;
             EchoType = "Echo reply";
             NroOfRoundsDone++;
+            return this;
         }
-        public void ToRequest()
+        public Packet ToRequest()
         {
             string tempDest = DestinationIpAddress;
             DestinationIpAddress = SourceIpAddress;
             SourceIpAddress = tempDest;
             EchoType = "Echo request";
+            return this;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace PacketTracer.Devices.Console.Commands
         public override string Execute(Device sourceDevice, List<string> commandParts)
         {
             string destinationAddress = commandParts[1];
-            Packet packet = new Packet(destinationAddress, sourceDevice.EthernetPorts[0].ipAddress, "Echo request");
+            Packet packet = new Packet(destinationAddress, sourceDevice.EthernetPorts[0].IpAddress, PacketType.icmp, "Echo request");
             return sourceDevice.SendPacket(packet, sourceDevice.EthernetPorts[0]);
         }
     }

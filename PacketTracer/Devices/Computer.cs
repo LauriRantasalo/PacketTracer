@@ -22,11 +22,11 @@ namespace PacketTracer.Devices
             {
                 if (i == 0)
                 {
-                    EthernetPorts.Add(new EthernetPort(defaultEthernetPortIp));
+                    EthernetPorts.Add(new EthernetPort(defaultEthernetPortIp, "Gi0/0"));
                 }
                 else
                 {
-                    EthernetPorts.Add(new EthernetPort("NULL"));
+                    EthernetPorts.Add(new EthernetPort("NULL", "Gi0/" + i.ToString()));
                 }
             }
 
@@ -38,23 +38,26 @@ namespace PacketTracer.Devices
             await Task.Delay(100);
             foreach (var port in EthernetPorts)
             {
-                if (port.ipAddress == packet.DestinationIpAddress)
+                if (port.IpAddress == packet.DestinationIpAddress)
                 {
-                    (Device aDevice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
+                    (Device aDevice, Device bDevice) = physicalInterface.ConnectedCable.SortCableDevices(this);
                     if (packet.EchoType == "Echo request")
                     {
                         packet.ToReply();
-                        bDevice.RecievePacketAsync(packet, EthernetPorts[0]);
+                        //bDevice.RecievePacketAsync(packet, EthernetPorts[0]);
+                        SendPacket(packet, EthernetPorts[0]);
                     }
                     else if (packet.EchoType == "Echo reply")
                     {
 
-                        Terminal.TerminalOutput += "\n" + "Reply from " + packet.SourceIpAddress + ": Time: " + (DateTime.Now - packet.SendTime).ToString();
+                        Terminal.TerminalOutput += "\n" + "Reply from " + packet.SourceIpAddress + " Time: " + (DateTime.Now - packet.SendTime).ToString();
                         packet.ToRequest();
+                        Debug.WriteLine("Reply recieved");
                         if (packet.NroOfRoundsDone < packet.MaxNroOfRounds)
                         {
                             packet.SendTime = DateTime.Now;
-                            bDevice.RecievePacketAsync(packet, EthernetPorts[0]);
+                            //bDevice.RecievePacketAsync(packet, EthernetPorts[0]);
+                            SendPacket(packet, EthernetPorts[0]);
                         }
                     }
                     else

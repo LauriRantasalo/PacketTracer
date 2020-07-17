@@ -39,29 +39,18 @@ namespace PacketTracer.Devices
        
         public string SendPacket(Packet packet, PhysicalInterface physicalInterface)
         {
-            if (physicalInterface.connectedCable != null)
+
+            if (physicalInterface.ConnectedCable != null)
             {
-                (Device aDebvice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
+                (Device aDebvice, Device bDevice) = physicalInterface.ConnectedCable.SortCableDevices(this);
                 bDevice.RecievePacketAsync(packet, physicalInterface);
 
-                Debug.WriteLine("sending packet to " + packet.DestinationIpAddress + " from " + physicalInterface.ipAddress);
-                return "Pinging " + packet.DestinationIpAddress + " from " + physicalInterface.ipAddress;
+                Debug.WriteLine(Name + " @" + physicalInterface.InterfaceName + ":" + physicalInterface.IpAddress + " sending packet to " + packet.DestinationIpAddress);
+                return "Pinging " + packet.DestinationIpAddress + " from " + physicalInterface.IpAddress;
             }
             return "No ethernet cable connected";
         }
-        /*public string SendPacket(string destinationIpAddress, PhysicalInterface physicalInterface)
-        {
-            if (physicalInterface.connectedCable != null)
-            {
-                (Device aDebvice, Device bDevice) = physicalInterface.connectedCable.SortCableDevices(this);
-                bDevice.RecievePacketAsync(destinationIpAddress, physicalInterface.ipAddress, physicalInterface, "Echo request");
-                Debug.WriteLine("sending packet to " + destinationIpAddress + " from " + physicalInterface.ipAddress);
-                return "Pinging " + destinationIpAddress + " from " + physicalInterface.ipAddress;
-            }
-            return "No ethernet cable connected";
-        }
-         */
-        //public abstract void RecievePacketAsync(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface, string echoType);
+        
         public abstract void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface);
 
         public void AddCable(Cable cable, Device connectedDevice)
@@ -72,21 +61,21 @@ namespace PacketTracer.Devices
                 case cableType.Ethernet:
                     foreach (var port in EthernetPorts)
                     {
-                        if (port.connectedCable == null)
+                        if (port.ConnectedCable == null)
                         {
                             if (TypeOfDevice == deviceType.Router)
                             {
                                 Router temp = (Router)this;
-                                string subnet = port.ipAddress.Remove(port.ipAddress.LastIndexOf("."));
-                                string nextHopIp = deviceB.EthernetPorts[0].ipAddress;
+                                string subnet = port.IpAddress.Remove(port.IpAddress.LastIndexOf("."));
+                                string nextHopIp = deviceB.EthernetPorts[0].IpAddress;
                                 // TODO: This probably still needs to take into consideration that subnets might be less than the first 3 segments of the address
 
-                                port.connectedCable = cable;
+                                port.ConnectedCable = cable;
                                 temp.AddNewRoutingTableRoute(subnet + ".0", nextHopIp, port);
                             }
                             else
                             {
-                                port.connectedCable = cable;
+                                port.ConnectedCable = cable;
                             }
                             return;
                         }
@@ -99,7 +88,7 @@ namespace PacketTracer.Devices
 
         public void SetIpAddress(PhysicalInterface port, string ipAddress)
         {
-            port.ipAddress = ipAddress;
+            port.IpAddress = ipAddress;
         }
     }
 }

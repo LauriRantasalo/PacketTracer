@@ -16,7 +16,7 @@
             <RowDefinition Height="13*"></RowDefinition>
         </Grid.RowDefinitions>
         <TextBlock Name="ConsoleTextBlock" x:FieldModifier="public" Grid.Row="0"></TextBlock>
-        <TextBox Name="ConsoleInputText" Text="TextBox" Grid.Row="1" TextWrapping="Wrap" Margin="10,10,10,10" KeyDown="ConsoleInputText_KeyDown"/>
+        <TextBox Name="ConsoleInputText" Text="ping 192.168.0.2" Grid.Row="1" TextWrapping="Wrap" Margin="10,10,10,10" KeyDown="ConsoleInputText_KeyDown"/>
 
     </Grid>
 </Page>
