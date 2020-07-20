@@ -11,6 +11,7 @@ using PacketTracer.Cables;
 using PacketTracer.Devices.Interfaces;
 using PacketTracer.Devices.Console;
 using PacketTracer.Devices.Routers;
+using Windows.UI.Xaml.Media;
 
 namespace PacketTracer.Devices
 {
@@ -53,37 +54,17 @@ namespace PacketTracer.Devices
         
         public abstract void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface);
 
-        public void AddCable(Cable cable, Device connectedDevice)
+        public PhysicalInterface GetFreeEthernetPort()
         {
-            (Device deviceA, Device deviceB) = cable.SortCableDevices(this);
-            switch (cable.TypeOfCable)
+            foreach (var port in EthernetPorts)
             {
-                case cableType.Ethernet:
-                    foreach (var port in EthernetPorts)
-                    {
-                        if (port.ConnectedCable == null)
-                        {
-                            if (TypeOfDevice == deviceType.Router)
-                            {
-                                Router temp = (Router)this;
-                                string subnet = port.IpAddress.Remove(port.IpAddress.LastIndexOf("."));
-                                string nextHopIp = deviceB.EthernetPorts[0].IpAddress;
-                                // TODO: This probably still needs to take into consideration that subnets might be less than the first 3 segments of the address
-
-                                port.ConnectedCable = cable;
-                                temp.AddNewRoutingTableRoute(subnet + ".0", nextHopIp, port);
-                            }
-                            else
-                            {
-                                port.ConnectedCable = cable;
-                            }
-                            return;
-                        }
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException();
+                if (port.ConnectedCable == null)
+                {
+                    return port;
+                }
             }
+            Debug.WriteLine("No free ethernet ports available on " + Name + ". Returned null");
+            return null;
         }
 
         public void SetIpAddress(PhysicalInterface port, string ipAddress)

@@ -12,7 +12,7 @@ namespace PacketTracer.Cables
 {
     public class EthernetCable : Cable
     {
-       public EthernetCable(Point start, Point end) : base(start, end)
+       public EthernetCable(Point start, Point end, Device deviceA, Device deviceB) : base(start, end, deviceA, deviceB)
        {
             TypeOfCable = cableType.Ethernet;
        }

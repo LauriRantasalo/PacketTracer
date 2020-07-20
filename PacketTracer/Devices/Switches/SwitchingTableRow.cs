@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 using PacketTracer.Devices.Interfaces;
 namespace PacketTracer.Devices.Routers
 {
-    public class RoutingTableRow
+    public class SwitchingTableRow
     {
-        public string Subnet { get; set; }
-        public string NextHop { get; set; }
+        public string MacAddress { get; set; }
         public PhysicalInterface PhysicalInterface { get; set; }
-        public RoutingTableRow(string subnet, string nextHop, PhysicalInterface physicalInterface)
+        public SwitchingTableRow(string macAddress, PhysicalInterface physicalInterface)
         {
-            Subnet = subnet;
-            NextHop = nextHop;
+            MacAddress = macAddress;
             PhysicalInterface = physicalInterface;
         }
     }

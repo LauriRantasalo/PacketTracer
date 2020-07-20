@@ -8,6 +8,8 @@ using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml.Media;
 
 using PacketTracer.Devices;
+using System.Diagnostics;
+
 namespace PacketTracer.Cables
 {
     public enum cableType {Ethernet, Console};
@@ -19,10 +21,32 @@ namespace PacketTracer.Cables
         public cableType TypeOfCable { get; set; }
         public Device DeviceA { get; set; }
         public Device DeviceB{ get; set; }
-        public Cable(Point start, Point end)
+        public Rectangle IndicatorA { get; set; }
+        public Rectangle IndicatorB { get; set; }
+        public Dictionary<Device, Rectangle> DeviceIndicatorDict { get; set; }
+        public Cable(Point start, Point end, Device deviceA, Device deviceB)
         {
+            DeviceIndicatorDict = new Dictionary<Device, Rectangle>();
+            IndicatorA = new Rectangle();
+            IndicatorB = new Rectangle();
+
+            IndicatorA.Fill = new SolidColorBrush(Windows.UI.Colors.Red);
+            IndicatorA.Width = 7;
+            IndicatorA.Height = 7;
+
+            IndicatorB.Fill = new SolidColorBrush(Windows.UI.Colors.Red);
+            IndicatorB.Width = 7;
+            IndicatorB.Height = 7;
+
+            DeviceA = deviceA;
+            DeviceB = deviceB;
+
+            DeviceIndicatorDict.Add(DeviceA, IndicatorA);
+            DeviceIndicatorDict.Add(DeviceB, IndicatorB);
+
             startPoint = start;
             endPoint = end;
+
             CableLine = new Polyline();
             CableLine.Points.Add(startPoint);
             CableLine.Points.Add(endPoint);
@@ -30,6 +54,8 @@ namespace PacketTracer.Cables
             CableLine.Stroke = new SolidColorBrush(Windows.UI.Colors.Green);
             CableLine.StrokeThickness = 4;
         }
+
+
 
         public void ReDrawCable(Point start, Point end)
         {

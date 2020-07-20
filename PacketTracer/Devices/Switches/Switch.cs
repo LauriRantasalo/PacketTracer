@@ -6,17 +6,19 @@ using System.Diagnostics;
 using PacketTracer.Devices.Interfaces;
 using PacketTracer.Devices.Console;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Shapes;
+using Windows.UI.Xaml.Media;
 
 namespace PacketTracer.Devices.Routers
 {
-    public class Router : Device
+    public class Switch : Device
     {
         /// <summary>
         /// [subnet, next-hop, interface]
         /// </summary>
         //List<(string subnet, string nextHop, PhysicalInterface physicalInterface)> routingTable = new List<(string, string, PhysicalInterface)>();
-        List<RoutingTableRow> routingTable = new List<RoutingTableRow>();
-        public Router(UIManager uiManager, Grid baseGrid, string name, int nroOfEthernetPorts) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
+        List<SwitchingTableRow> switchingTable = new List<SwitchingTableRow>();
+        public Switch(UIManager uiManager, Grid baseGrid, string name, int nroOfEthernetPorts) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
         {
             TypeOfDevice = deviceType.Router;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
@@ -42,7 +44,7 @@ namespace PacketTracer.Devices.Routers
                     isDestinationDevice = true;
                     (Device iDevice, Device jDevice) = port.ConnectedCable.SortCableDevices(this);
                     packet.ToReply();
-                    RoutingTableRow tempRow = CheckRoutingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
+                    SwitchingTableRow tempRow = CheckSwitchingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
                     SendPacket(packet, tempRow.PhysicalInterface);
                     break;
                 }
@@ -50,7 +52,7 @@ namespace PacketTracer.Devices.Routers
 
             if (!isDestinationDevice)
             {
-                RoutingTableRow routingTableRow = CheckRoutingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
+                SwitchingTableRow routingTableRow = CheckSwitchingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
 
                 (Device aDevice, Device bDevice) = routingTableRow.PhysicalInterface.ConnectedCable.SortCableDevices(this);
                 SendPacket(packet, routingTableRow.PhysicalInterface);
@@ -62,13 +64,14 @@ namespace PacketTracer.Devices.Routers
         /// Checks if there is a known route and returns routing table row
         /// </summary>
         /// <returns></returns>
-        public RoutingTableRow CheckRoutingTable(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface)
+        public SwitchingTableRow CheckSwitchingTable(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface)
         {
             string destinationSubnet = destinationIpAdress.Remove(destinationIpAdress.LastIndexOf(".")) + ".0";
             bool noRoute = true;
-            foreach (var routingTableRow in routingTable)
+            foreach (var routingTableRow in switchingTable)
             {
-                if (routingTableRow.NextHop == destinationIpAdress)
+                /*
+                 * if (routingTableRow.NextHop == destinationIpAdress)
                 {
                     //Debug.WriteLine("Routing " + echoType + " from: " + sourceIpAdress + " to: " + destinationIpAdress);
                     noRoute = false;
@@ -79,6 +82,7 @@ namespace PacketTracer.Devices.Routers
                     // Hop to next router
                     //throw new NotImplementedException();
                 }
+                 */
             }
 
             if (noRoute)
@@ -92,7 +96,7 @@ namespace PacketTracer.Devices.Routers
 
         public void AddNewRoutingTableRoute(string subnet, string nextHopIP, PhysicalInterface physicalInterface)
         {
-            routingTable.Add(new RoutingTableRow(subnet, nextHopIP, physicalInterface));
+            //switchingTable.Add(new SwitchingTableRow(subnet, nextHopIP, physicalInterface));
             /*
             foreach (var item in routingTable)
             {
