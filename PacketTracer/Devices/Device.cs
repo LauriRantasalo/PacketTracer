@@ -67,9 +67,6 @@ namespace PacketTracer.Devices
             return null;
         }
 
-        public void SetIpAddress(PhysicalInterface port, string ipAddress)
-        {
-            port.IpAddress = ipAddress;
-        }
+
     }
 }

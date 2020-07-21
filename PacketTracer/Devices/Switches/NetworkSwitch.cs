@@ -11,19 +11,19 @@ using Windows.UI.Xaml.Media;
 
 namespace PacketTracer.Devices.Routers
 {
-    public class Switch : Device
+    public class NetworkSwitch : Device
     {
         /// <summary>
         /// [subnet, next-hop, interface]
         /// </summary>
         //List<(string subnet, string nextHop, PhysicalInterface physicalInterface)> routingTable = new List<(string, string, PhysicalInterface)>();
         List<SwitchingTableRow> switchingTable = new List<SwitchingTableRow>();
-        public Switch(UIManager uiManager, Grid baseGrid, string name, int nroOfEthernetPorts) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
+        public NetworkSwitch(UIManager uiManager, EntityManager entityManager, Grid baseGrid, string name, int nroOfEthernetPorts) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
         {
             TypeOfDevice = deviceType.Router;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
             {
-                EthernetPorts.Add(new EthernetPort("192.168.0." + (10 + i).ToString(), "Gi0/" + i.ToString()));
+                EthernetPorts.Add(new EthernetPort("192.168.0." + (10 + i).ToString(), "Gi0/" + i.ToString(), entityManager.GenerateNewMacAddress()));
             }
             Terminal = new RouterTerminal(uiManager, this);
         }
@@ -61,14 +61,14 @@ namespace PacketTracer.Devices.Routers
         }
 
         /// <summary>
-        /// Checks if there is a known route and returns routing table row
+        /// Checks if there is a known route and returns switching table row
         /// </summary>
         /// <returns></returns>
         public SwitchingTableRow CheckSwitchingTable(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface)
         {
             string destinationSubnet = destinationIpAdress.Remove(destinationIpAdress.LastIndexOf(".")) + ".0";
             bool noRoute = true;
-            foreach (var routingTableRow in switchingTable)
+            foreach (var switchingTableRow in switchingTable)
             {
                 /*
                  * if (routingTableRow.NextHop == destinationIpAdress)
@@ -94,9 +94,10 @@ namespace PacketTracer.Devices.Routers
             return null;
         }
 
-        public void AddNewRoutingTableRoute(string subnet, string nextHopIP, PhysicalInterface physicalInterface)
+        public void AddNewSwitchingTableRow(string macAddress, PhysicalInterface physicalInterface)
         {
-            //switchingTable.Add(new SwitchingTableRow(subnet, nextHopIP, physicalInterface));
+
+            switchingTable.Add(new SwitchingTableRow(macAddress, physicalInterface));
             /*
             foreach (var item in routingTable)
             {

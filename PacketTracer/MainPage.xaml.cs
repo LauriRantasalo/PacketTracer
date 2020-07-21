@@ -60,7 +60,7 @@ namespace PacketTracer
             baseGrid.PointerMoved += Entity_PointerMoved;
             baseGrid.PointerPressed += Entity_PointerPressed;
             baseGrid.PointerReleased += Entity_PointerReleased;
-            Devices.Routers.Switch tempR = new Devices.Routers.Switch(uiManager, baseGrid, router.Name, 4);
+            Devices.Routers.NetworkSwitch tempR = new Devices.Routers.NetworkSwitch(uiManager, entityManager, baseGrid, router.Name, 4);
             
             entityManager.Devices.Add(tempR);
 
@@ -83,7 +83,7 @@ namespace PacketTracer
                 baseGrid.PointerMoved += Entity_PointerMoved;
                 baseGrid.PointerPressed += Entity_PointerPressed;
                 baseGrid.PointerReleased += Entity_PointerReleased;
-                Computer temp = new Computer(uiManager, baseGrid, pc.Name, 1, "192.168.0." + (i + 1).ToString());
+                Computer temp = new Computer(uiManager, entityManager, baseGrid, pc.Name, 1, "192.168.0." + (i + 1).ToString());
                 entityManager.Devices.Add(temp);
             }
 

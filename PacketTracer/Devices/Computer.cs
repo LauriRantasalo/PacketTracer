@@ -15,18 +15,18 @@ namespace PacketTracer.Devices
 {
     public class Computer : Device
     {
-        public Computer(UIManager uiManager, Grid baseGrid, string name, int nroOfEthernetPorts, string defaultEthernetPortIp) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
+        public Computer(UIManager uiManager, EntityManager entityManager, Grid baseGrid, string name, int nroOfEthernetPorts, string defaultEthernetPortIp) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
         {
             TypeOfDevice = deviceType.Computer;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
             {
                 if (i == 0)
                 {
-                    EthernetPorts.Add(new EthernetPort(defaultEthernetPortIp, "Gi0/0"));
+                    EthernetPorts.Add(new EthernetPort(defaultEthernetPortIp, "Gi0/0", entityManager.GenerateNewMacAddress()));
                 }
                 else
                 {
-                    EthernetPorts.Add(new EthernetPort("NULL", "Gi0/" + i.ToString()));
+                    EthernetPorts.Add(new EthernetPort("NULL", "Gi0/" + i.ToString(), entityManager.GenerateNewMacAddress()));
                 }
             }
 

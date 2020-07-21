@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,39 @@ namespace PacketTracer
         {
             Devices = new List<Device>();
         }
+
+        char[] macAddressChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
+        public string GenerateNewMacAddress()
+        {
+            string address = "";
+            Random rnd = new Random();
+            int addressLength = 17;
+            for (int i = 1; i <= addressLength; i++)
+            {
+                if (i % 3 == 0)
+                {
+                    address += ":";
+                }
+                else
+                {
+                    address += macAddressChars[rnd.Next(macAddressChars.Length)];
+                }
+            }
+
+            foreach (var device in Devices)
+            {
+                foreach (var port in device.EthernetPorts)
+                {
+                    if (port.MacAddress == address)
+                    {
+                        return GenerateNewMacAddress();
+                    }
+                }
+            }
+            return address;
+                
+        }
+
         // This might need a rework
         public void ConnectCableToDevices(Device deviceA, PhysicalInterface devAInterface, Device deviceB, PhysicalInterface devBInterface, Cable cable)
         {
@@ -25,24 +59,6 @@ namespace PacketTracer
                 case cableType.Ethernet:
                     devAInterface.ConnectedCable = cable;
                     devBInterface.ConnectedCable = cable;
-
-
-
-                    if (deviceA.GetType() == typeof(Switch))
-                    {
-                        Switch temp = (Switch)deviceA;
-                        string subnet = devAInterface.IpAddress.Remove(devAInterface.IpAddress.LastIndexOf("."));
-                        string nextHopIp = devBInterface.IpAddress;
-                        temp.AddNewRoutingTableRoute(subnet + ".0", nextHopIp, devAInterface);
-                    }
-
-                    if (deviceB.GetType() == typeof(Switch))
-                    {
-                        Switch temp = (Switch)deviceB;
-                        string subnet = devBInterface.IpAddress.Remove(devBInterface.IpAddress.LastIndexOf("."));
-                        string nextHopIp = devAInterface.IpAddress;
-                        temp.AddNewRoutingTableRoute(subnet + ".0", nextHopIp, devBInterface);
-                    }
                     break;
                 case cableType.Console:
                     break;
@@ -67,17 +83,17 @@ namespace PacketTracer
             return computers;
         }
 
-        public List<Switch> GetRouters()
+        public List<NetworkSwitch> GetSwitches()
         {
-            List<Switch> routers = new List<Switch>();
+            List<NetworkSwitch> switches = new List<NetworkSwitch>();
             foreach (var device in Devices)
             {
                 if (device.TypeOfDevice == deviceType.Router)
                 {
-                    routers.Add((Switch)device);
+                    switches.Add((NetworkSwitch)device);
                 }
             }
-            return routers;
+            return switches;
         }
     }
 }

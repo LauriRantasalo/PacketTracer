@@ -142,7 +142,8 @@
     <Compile Include="Devices\Interfaces\EthernetPort.cs" />
     <Compile Include="Devices\Interfaces\Packet.cs" />
     <Compile Include="Devices\Interfaces\PhysicalInterface.cs" />
-    <Compile Include="Devices\Switches\Switch.cs" />
+    <Compile Include="Devices\Routers\Router.cs" />
+    <Compile Include="Devices\Switches\NetworkSwitch.cs" />
     <Compile Include="Devices\Console\Terminal.cs" />
     <Compile Include="Devices\Switches\SwitchingTableRow.cs" />
     <Compile Include="EntityManager.cs" />

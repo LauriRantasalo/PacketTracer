@@ -9,7 +9,7 @@ namespace PacketTracer.Devices.Interfaces
 {
     public class EthernetPort : PhysicalInterface
     {
-        public EthernetPort(string ipAddress, string interfaceName) : base(ipAddress, interfaceName)
+        public EthernetPort(string ipAddress, string interfaceName, string macAddress) : base(ipAddress, interfaceName, macAddress)
         {
             TypeOfPhysicalInterface = PhysicalInterfaceType.Ethernet;
         }

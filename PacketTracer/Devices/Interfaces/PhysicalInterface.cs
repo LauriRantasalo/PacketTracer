@@ -13,11 +13,13 @@ namespace PacketTracer.Devices.Interfaces
         public string IpAddress { get; set; }
         public PhysicalInterfaceType TypeOfPhysicalInterface { get; set; }
         public Cable ConnectedCable { get; set; }
+        public string MacAddress { get; set; }
         public string InterfaceName { get; set; }
-        public PhysicalInterface(string ipAddress, string interfaceName)
+        public PhysicalInterface(string ipAddress, string interfaceName, string macAddress)
         {
             IpAddress = ipAddress;
             InterfaceName = interfaceName;
+            MacAddress = macAddress;
         }
     }
 }
