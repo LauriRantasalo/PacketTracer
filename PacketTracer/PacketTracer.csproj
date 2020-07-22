@@ -133,24 +133,27 @@
     <Compile Include="ComputerConfigurationSettings.xaml.cs">
       <DependentUpon>ComputerConfigurationSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Devices\Computer.cs" />
+    <Compile Include="Devices\Computers\ArpTableRow.cs" />
+    <Compile Include="Devices\Computers\Computer.cs" />
     <Compile Include="Devices\Console\Commands\ConsoleCommand.cs" />
     <Compile Include="Devices\Console\Commands\PingCommand.cs" />
     <Compile Include="Devices\Console\ComputerTerminal.cs" />
-    <Compile Include="Devices\Console\RouterTerminal.cs" />
+    <Compile Include="Devices\Console\SwitchTerminal.cs" />
     <Compile Include="Devices\Device.cs" />
     <Compile Include="Devices\Interfaces\EthernetPort.cs" />
-    <Compile Include="Devices\Interfaces\Packet.cs" />
+    <Compile Include="Protocols\ARPPacket.cs" />
+    <Compile Include="Protocols\Packet.cs" />
     <Compile Include="Devices\Interfaces\PhysicalInterface.cs" />
     <Compile Include="Devices\Routers\Router.cs" />
     <Compile Include="Devices\Switches\NetworkSwitch.cs" />
     <Compile Include="Devices\Console\Terminal.cs" />
-    <Compile Include="Devices\Switches\SwitchingTableRow.cs" />
+    <Compile Include="Devices\Switches\MacAddressTableRow.cs" />
     <Compile Include="EntityManager.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocols\ICMPPacket.cs" />
     <Compile Include="UIManager.cs" />
   </ItemGroup>
   <ItemGroup>

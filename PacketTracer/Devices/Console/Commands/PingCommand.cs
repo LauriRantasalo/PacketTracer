@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using PacketTracer.Devices.Interfaces;
+using PacketTracer.Protocols;
+
 namespace PacketTracer.Devices.Console.Commands
 {
     class PingCommand : ConsoleCommand
@@ -18,7 +20,7 @@ namespace PacketTracer.Devices.Console.Commands
         public override string Execute(Device sourceDevice, List<string> commandParts)
         {
             string destinationAddress = commandParts[1];
-            Packet packet = new Packet(destinationAddress, sourceDevice.EthernetPorts[0].IpAddress, PacketType.icmp, "Echo request");
+            ICMPPacket packet = new ICMPPacket(destinationAddress, sourceDevice.EthernetPorts[0].IpAddress, sourceDevice.EthernetPorts[0].MacAddress, "Echo request");
             return sourceDevice.SendPacket(packet, sourceDevice.EthernetPorts[0]);
         }
     }

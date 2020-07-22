@@ -9,6 +9,7 @@ using Windows.UI.Xaml.Media;
 
 using PacketTracer.Devices;
 using System.Diagnostics;
+using PacketTracer.Devices.Interfaces;
 
 namespace PacketTracer.Cables
 {
@@ -56,7 +57,17 @@ namespace PacketTracer.Cables
         }
 
 
-
+        public PhysicalInterface GetPortOfDevice(Device device)
+        {
+            foreach (var port in device.EthernetPorts)
+            {
+                if (port.ConnectedCable == this)
+                {
+                    return port;
+                }
+            }
+            return null;
+        }
         public void ReDrawCable(Point start, Point end)
         {
             CableLine.Points.Clear();

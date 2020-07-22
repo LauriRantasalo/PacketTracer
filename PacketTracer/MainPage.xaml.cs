@@ -12,7 +12,9 @@ using Windows.UI.Xaml.Shapes;
 
 using PacketTracer.Devices;
 using PacketTracer.Devices.Routers;
+using PacketTracer.Devices.Switches;
 using PacketTracer.Cables;
+using PacketTracer.Devices.Computers;
 // Number of commits made just to keep Github pretty: 3
 // Collection of excuses to not work on this project:
 // 1. Sick x3
@@ -44,15 +46,15 @@ namespace PacketTracer
         void CreateDevices()
         {
             Grid baseGrid = new Grid();
-            Rectangle router = new Rectangle();
+            Rectangle networkSwitch = new Rectangle();
             TextBlock text = new TextBlock();
-            baseGrid.Name = "router0";
-            router.Name = baseGrid.Name;
-            text.Text = router.Name;
-            baseGrid.Children.Add(router);
+            baseGrid.Name = "switch0";
+            networkSwitch.Name = baseGrid.Name;
+            text.Text = networkSwitch.Name;
+            baseGrid.Children.Add(networkSwitch);
             baseGrid.Children.Add(text);
             baseCanvas.Children.Add(baseGrid);
-            router.Fill = new SolidColorBrush(Windows.UI.Colors.Blue);
+            networkSwitch.Fill = new SolidColorBrush(Windows.UI.Colors.Blue);
             baseGrid.Width = entitySizeX;
             baseGrid.Height = entitySizeY;
             Canvas.SetLeft(baseGrid, 50);
@@ -60,7 +62,7 @@ namespace PacketTracer
             baseGrid.PointerMoved += Entity_PointerMoved;
             baseGrid.PointerPressed += Entity_PointerPressed;
             baseGrid.PointerReleased += Entity_PointerReleased;
-            Devices.Routers.NetworkSwitch tempR = new Devices.Routers.NetworkSwitch(uiManager, entityManager, baseGrid, router.Name, 4);
+            NetworkSwitch tempR = new NetworkSwitch(uiManager, entityManager, baseGrid, networkSwitch.Name, 4);
             
             entityManager.Devices.Add(tempR);
 

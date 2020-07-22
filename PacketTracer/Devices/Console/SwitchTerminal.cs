@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace PacketTracer.Devices.Console
 {
-    public class RouterTerminal : Terminal
+    public class SwitchTerminal : Terminal
     {
         ConsoleCommand[] commands;
-        public RouterTerminal(UIManager uiManager, Device device) : base(uiManager, device)
+        public SwitchTerminal(UIManager uiManager, Device device) : base(uiManager, device)
         {
             commands = new ConsoleCommand[] { new PingCommand() };
         }

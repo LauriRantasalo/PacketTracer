@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml.Shapes;
 using System.Diagnostics;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 
 using PacketTracer.Cables;
 using PacketTracer.Devices.Interfaces;
 using PacketTracer.Devices.Console;
 using PacketTracer.Devices.Routers;
-using Windows.UI.Xaml.Media;
+using PacketTracer.Protocols;
+using PacketTracer.Devices.Computers;
 
 namespace PacketTracer.Devices
 {
@@ -44,10 +46,55 @@ namespace PacketTracer.Devices
             if (physicalInterface.ConnectedCable != null)
             {
                 (Device aDebvice, Device bDevice) = physicalInterface.ConnectedCable.SortCableDevices(this);
-                bDevice.RecievePacketAsync(packet, physicalInterface);
+                switch (packet.TypeOfPacket)
+                {
+                    case PacketType.icmp:
+                        if (GetType() == typeof(Computer))
+                        {
+                            Computer temp = (Computer)this;
+                            ArpTableRow row = temp.CheckArpTable(packet.DestinationIpAddress);
+                            if (row == null)
+                            {
+                                // Send arp request
+                                bDevice.RecievePacketAsync(new ARPPacket(packet.DestinationIpAddress, physicalInterface.IpAddress, packet.SourceMacAddress, "Request"), physicalInterface);
+                                return "Sending arp request";
+                            }
+                            else
+                            {
+                                packet.DestinationMacAddress = row.MacAddress;
+                                bDevice.RecievePacketAsync(packet, physicalInterface);
+                                return "Pinging " + packet.DestinationIpAddress + " from " + physicalInterface.IpAddress;
+                            }
+                        }
 
-                Debug.WriteLine(Name + " @" + physicalInterface.InterfaceName + ":" + physicalInterface.IpAddress + " sending packet to " + packet.DestinationIpAddress);
-                return "Pinging " + packet.DestinationIpAddress + " from " + physicalInterface.IpAddress;
+
+                        /*
+                         * string destinationMacAddress = CheckArpTable(packet.DestinationIpAddress);
+                        if (destinationMacAddress != "NO MATCH")
+                        {
+                            bDevice.RecievePacketAsync(packet, physicalInterface);
+                            Debug.WriteLine(Name + " @" + physicalInterface.InterfaceName + ":" + physicalInterface.IpAddress + " sending packet to " + packet.DestinationIpAddress);
+                            
+                        }
+                        else
+                        {
+                            // Generate and broadcast arp request to all ports in local network
+                            bDevice.RecievePacketAsync(new ARPPacket(packet.DestinationIpAddress, physicalInterface.IpAddress, packet.SourceMacAddress, "Request"), physicalInterface);
+                        }
+                         */
+                        break;
+                    case PacketType.arp:
+                        bDevice.RecievePacketAsync(packet, physicalInterface);
+                        //bDevice.RecievePacketAsync(new ARPPacket(packet.DestinationIpAddress, physicalInterface.IpAddress, packet.SourceMacAddress, "Request"), physicalInterface);
+                        break;
+                    case PacketType.tcp:
+                        break;
+                    case PacketType.udp:
+                        break;
+                    default:
+                        break;
+                }
+
             }
             return "No ethernet cable connected";
         }

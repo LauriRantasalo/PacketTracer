@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using PacketTracer.Cables;
 using PacketTracer.Devices;
+using PacketTracer.Devices.Computers;
 using PacketTracer.Devices.Interfaces;
 using PacketTracer.Devices.Routers;
+using PacketTracer.Devices.Switches;
 
 namespace PacketTracer
 {

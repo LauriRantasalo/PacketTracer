@@ -19,7 +19,6 @@ namespace PacketTracer.Devices.Console
 
         public override string ExecuteCommand(string command)
         {
-            Debug.WriteLine("Thread id: " + Thread.CurrentThread.ManagedThreadId);
             command.Trim();
             List<string> commandParts = command.Split(" ").ToList();
             foreach (var c in commands)

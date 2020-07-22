@@ -4,26 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PacketTracer.Devices.Interfaces
+namespace PacketTracer.Protocols
 {
-    public enum PacketType { icmp, tcp, udp}
-
-    public class Packet
+    // NOTE: It might be bad that we are sending the same packet over and over again, its fine for now but probably need to change this to how it is irl
+    public class ICMPPacket : Packet
     {
-        public string DestinationIpAddress { get; set; }
-        public string SourceIpAddress{ get; set; }
         public string EchoType { get; set; }
-        public DateTime SendTime { get; set; }
-        public PacketType TypeOfPacket { get; set; }
         public int NroOfRoundsDone = 0;
         public int MaxNroOfRounds = 4;
-        public Packet(string destAddress, string srcAddress, PacketType typeOfPacket, string echoType)
+        public ICMPPacket(string destAddress, string srcAddress, string sourceMacAddress, string echoType) : base (destAddress, srcAddress, sourceMacAddress)
         {
-            DestinationIpAddress = destAddress;
-            SourceIpAddress = srcAddress;
             EchoType = echoType;
-            SendTime = DateTime.Now;
-            TypeOfPacket = typeOfPacket;
+            TypeOfPacket = PacketType.icmp;
         }
 
         public Packet ToReply()

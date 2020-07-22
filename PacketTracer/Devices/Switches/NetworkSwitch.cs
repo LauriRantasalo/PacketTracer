@@ -8,19 +8,114 @@ using PacketTracer.Devices.Console;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI.Xaml.Media;
+using PacketTracer.Protocols;
 
-namespace PacketTracer.Devices.Routers
+namespace PacketTracer.Devices.Switches
 {
+    public class NetworkSwitch : Device
+    {
+        public List<MacAddressTableRow> MacAddressTable { get; set; }
+        public NetworkSwitch(UIManager uIManager, EntityManager entityManager, Grid baseGrid, string name, int nroOfEthernetPorts) : base(uIManager, name, baseGrid, nroOfEthernetPorts)
+        {
+            TypeOfDevice = deviceType.Switch;
+            MacAddressTable = new List<MacAddressTableRow>();
+            for (int i = 0; i < nroOfEthernetPorts; i++)
+            {
+                EthernetPort temp = new EthernetPort("NONE", "f0/" + i.ToString(), entityManager.GenerateNewMacAddress());
+                EthernetPorts.Add(temp);
+            }
+            Terminal = new SwitchTerminal(uIManager, this);
+        }
+
+
+        public override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
+        {
+            // Add new routes to arp table
+            //Debug.WriteLine(Name + " Got packet to " + packet.DestinationIpAddress);
+
+            MacAddressTableRow macAddressTableRow = CheckArpTable(packet.DestinationMacAddress);
+            PhysicalInterface recievingPort = physicalInterface.ConnectedCable.GetPortOfDevice(this);
+            if (macAddressTableRow == null)
+            {
+                //Debug.WriteLine("new mac-address table row at " + Name + ": " + packet.SourceMacAddress + " - " + recievingPort.InterfaceName);
+                MacAddressTableRow temp = new MacAddressTableRow(packet.SourceMacAddress, recievingPort);// For some reason this works for arp requests, it shouldnt
+                MacAddressTable.Add(temp);
+                macAddressTableRow = temp;
+                foreach (var row in MacAddressTable)
+                {
+                    Debug.WriteLine(row.MacAddress + " " + row.PhysicalInterface.InterfaceName);
+                }
+            }
+            switch (packet.TypeOfPacket)
+            {
+                case PacketType.icmp:
+                    Debug.WriteLine("Send icmp packet");
+                    break;
+                case PacketType.arp:
+                    ARPPacket arpPacket = (ARPPacket)packet;
+                    if (arpPacket.EchoType == "Request")
+                    {
+                        foreach (var port in EthernetPorts)
+                        {
+                            if (port.ConnectedCable != null &&  port != recievingPort)
+                            {
+                                SendPacket(arpPacket, port);
+                            }
+                        }
+                    }
+                    else if (arpPacket.EchoType == "Reply")
+                    {
+                        if (macAddressTableRow != null)
+                        {
+                            SendPacket(arpPacket, macAddressTableRow.PhysicalInterface);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("No route in mac-address table to " + arpPacket.DestinationMacAddress);
+                            foreach (var row in MacAddressTable)
+                            {
+                                Debug.WriteLine(row.MacAddress + " " + row.PhysicalInterface.InterfaceName);
+                            }
+                        }
+                    }
+                    break;
+                case PacketType.tcp:
+                    break;
+                case PacketType.udp:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public MacAddressTableRow CheckArpTable(string macAddress)
+        {
+            foreach (var row in MacAddressTable)
+            {
+                if (row.MacAddress == macAddress)
+                {
+                    return row;
+                }
+            }
+            return null;
+        }
+
+    }
+
+
+    /*
     public class NetworkSwitch : Device
     {
         /// <summary>
         /// [subnet, next-hop, interface]
         /// </summary>
         //List<(string subnet, string nextHop, PhysicalInterface physicalInterface)> routingTable = new List<(string, string, PhysicalInterface)>();
-        List<SwitchingTableRow> switchingTable = new List<SwitchingTableRow>();
+        public List<ArpTableRow> ArpTable { get; set; }
+
         public NetworkSwitch(UIManager uiManager, EntityManager entityManager, Grid baseGrid, string name, int nroOfEthernetPorts) : base(uiManager, name, baseGrid, nroOfEthernetPorts)
         {
-            TypeOfDevice = deviceType.Router;
+            ArpTable = new List<ArpTableRow>();
+            TypeOfDevice = deviceType.Switch;
             for (int i = 0; i < this.nroOfEthernetPorts; i++)
             {
                 EthernetPorts.Add(new EthernetPort("192.168.0." + (10 + i).ToString(), "Gi0/" + i.ToString(), entityManager.GenerateNewMacAddress()));
@@ -35,77 +130,133 @@ namespace PacketTracer.Devices.Routers
         /// <param name="physicalInterface">last device physical interface</param>
         public async override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
         {
+            ArpTableRow tempRow = CheckArpTable(packet.SourceIpAddress);
+            if (tempRow == null)
+            {
+                // New connection, add to arp table;
+                ArpTable.Add(new ArpTableRow(packet.SourceMacAddress, packet.SourceIpAddress, ))// Need to get the port that the request came in on?
+            }
             await Task.Delay(100);
             bool isDestinationDevice = false;
-            foreach (var port in EthernetPorts)
+            switch (packet.TypeOfPacket)
             {
-                if (port != null && port.IpAddress == packet.DestinationIpAddress)
-                {
-                    isDestinationDevice = true;
-                    (Device iDevice, Device jDevice) = port.ConnectedCable.SortCableDevices(this);
-                    packet.ToReply();
-                    SwitchingTableRow tempRow = CheckSwitchingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
-                    SendPacket(packet, tempRow.PhysicalInterface);
+                case PacketType.icmp:
+                    ICMPPacket icmpPacket = (ICMPPacket)packet;
+                    foreach (var port in EthernetPorts)
+                    {
+                        if (port != null && port.IpAddress == icmpPacket.DestinationIpAddress)
+                        {
+                            isDestinationDevice = true;
+                            (Device iDevice, Device jDevice) = port.ConnectedCable.SortCableDevices(this);
+                            icmpPacket.ToReply();
+                            //SwitchingTableRow tempRow = CheckSwitchingTable(icmpPacket.DestinationIpAddress, icmpPacket.SourceIpAddress, physicalInterface);
+                            ArpTableRow tempRow = CheckArpTable();
+                            SendPacket(icmpPacket, tempRow.PhysicalInterface);
+                            break;
+                        }
+                    }
+
+                    if (!isDestinationDevice)
+                    {
+                       //SwitchingTableRow routingTableRow = CheckSwitchingTable(icmpPacket.DestinationIpAddress, icmpPacket.SourceIpAddress, physicalInterface);
+
+                        (Device aDevice, Device bDevice) = routingTableRow.PhysicalInterface.ConnectedCable.SortCableDevices(this);
+                        SendPacket(icmpPacket, routingTableRow.PhysicalInterface);
+                    }
+
                     break;
-                }
-            }
+                case PacketType.arp:
+                    ARPPacket arpPacket = (ARPPacket)packet;
 
-            if (!isDestinationDevice)
-            {
-                SwitchingTableRow routingTableRow = CheckSwitchingTable(packet.DestinationIpAddress, packet.SourceIpAddress, physicalInterface);
+                    if (arpPacket.EchoType == "Request")
+                    {
+                        foreach (var port in EthernetPorts)
+                        {
+                            if (port.IpAddress == arpPacket.DestinationIpAddress)
+                            {
+                                arpPacket.ToReply(port.MacAddress);
+                                SendPacket(arpPacket, );
+                                break;
+                            }
+                        }
+                    }
 
-                (Device aDevice, Device bDevice) = routingTableRow.PhysicalInterface.ConnectedCable.SortCableDevices(this);
-                SendPacket(packet, routingTableRow.PhysicalInterface);
+                    // Broadcast arp request to all ports
+                    foreach (var port in EthernetPorts)
+                    {
+                        if (port != physicalInterface)
+                        {
+                            SendPacket(arpPacket, port);
+                        }
+                    }
+                    break;
+                case PacketType.tcp:
+                    break;
+                case PacketType.udp:
+                    break;
+                default:
+                    break;
             }
+            
 
         }
 
-        /// <summary>
-        /// Checks if there is a known route and returns switching table row
-        /// </summary>
-        /// <returns></returns>
-        public SwitchingTableRow CheckSwitchingTable(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface)
+        public override ArpTableRow CheckArpTable(string macAddress)
         {
-            string destinationSubnet = destinationIpAdress.Remove(destinationIpAdress.LastIndexOf(".")) + ".0";
-            bool noRoute = true;
-            foreach (var switchingTableRow in switchingTable)
+            foreach (var row in ArpTable)
             {
-                /*
-                 * if (routingTableRow.NextHop == destinationIpAdress)
+                if (row.MacAddress == macAddress)
                 {
-                    //Debug.WriteLine("Routing " + echoType + " from: " + sourceIpAdress + " to: " + destinationIpAdress);
-                    noRoute = false;
-                    return routingTableRow;
-                }// If there is a subnet match to destination subnet and it is not the sending devices address
-                else if (routingTableRow.Subnet == destinationSubnet && routingTableRow.NextHop != physicalInterface.IpAddress)
-                {
-                    // Hop to next router
-                    //throw new NotImplementedException();
+                    return row;
                 }
-                 */
             }
-
-            if (noRoute)
-            {
-                Debug.WriteLine("No route found to: " + destinationIpAdress);
-                return null;
-            }
-
             return null;
         }
+
+        /*
+                public SwitchingTableRow CheckSwitchingTable(string destinationIpAdress, string sourceIpAdress, PhysicalInterface physicalInterface)
+                {
+                    string destinationSubnet = destinationIpAdress.Remove(destinationIpAdress.LastIndexOf(".")) + ".0";
+                    bool noRoute = true;
+                    foreach (var switchingTableRow in switchingTable)
+                    {
+
+                         * if (routingTableRow.NextHop == destinationIpAdress)
+                        {
+                            //Debug.WriteLine("Routing " + echoType + " from: " + sourceIpAdress + " to: " + destinationIpAdress);
+                            noRoute = false;
+                            return routingTableRow;
+                        }// If there is a subnet match to destination subnet and it is not the sending devices address
+                        else if (routingTableRow.Subnet == destinationSubnet && routingTableRow.NextHop != physicalInterface.IpAddress)
+                        {
+                            // Hop to next router
+                            //throw new NotImplementedException();
+                        }
+
+                    }
+
+                    if (noRoute)
+                    {
+                        Debug.WriteLine("No route found to: " + destinationIpAdress);
+                        return null;
+                    }
+
+                    return null;
+                }
+
 
         public void AddNewSwitchingTableRow(string macAddress, PhysicalInterface physicalInterface)
         {
 
-            switchingTable.Add(new SwitchingTableRow(macAddress, physicalInterface));
+            switchingTable.Add(new ArpTableRow(macAddress, physicalInterface));
             /*
             foreach (var item in routingTable)
             {
                 Debug.WriteLine(item.Subnet + " " + item.NextHop + " " + item.PhysicalInterface.ipAddress);
             }
-            */
             //Debug.WriteLine("From " + this.Name + ": " + routingTable[0]);
             // Possible routing protocol begins here?
         }
     }
+*/
 }
