@@ -36,9 +36,9 @@ namespace PacketTracer.Devices.Computers
             Terminal = new ComputerTerminal(uiManager, this);
         }
 
-        public async override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
+        public override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
         {
-            await Task.Delay(100);
+            //await Task.Delay(100);
             //Debug.WriteLine(Name + " got packet to" + packet.DestinationIpAddress);
             ArpTableRow arpTableRow = CheckArpTable(packet.SourceMacAddress);
             PhysicalInterface recievingPort = physicalInterface.ConnectedCable.GetPortOfDevice(this);
@@ -87,9 +87,10 @@ namespace PacketTracer.Devices.Computers
                     ARPPacket arpPacket = (ARPPacket)packet;
                     if (arpPacket.DestinationIpAddress == recievingPort.IpAddress)
                     {
+                        Debug.WriteLine("Arp destination reached at: " + Name);
                         if (arpPacket.EchoType == "Request")
                         {
-                            //Debug.WriteLine("Request to reply at " + Name + "  " + recievingPort.MacAddress + " " + EthernetPorts[0].MacAddress);
+                            Debug.WriteLine("Request to reply at " + Name + "  " + recievingPort.MacAddress + " " + EthernetPorts[0].MacAddress);
                             arpPacket.ToReply(recievingPort.MacAddress);
                             SendPacket(arpPacket, recievingPort);
                         }
@@ -117,7 +118,11 @@ namespace PacketTracer.Devices.Computers
                     break;
             }
         }
-
+        /// <summary>
+        /// Returns comuter arp table row
+        /// </summary>
+        /// <param name="ipAddress"></param>
+        /// <returns></returns>
         public  ArpTableRow CheckArpTable(string ipAddress)
         {
             foreach (var row in ArpTable)

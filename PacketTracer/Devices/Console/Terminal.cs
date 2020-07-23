@@ -25,11 +25,12 @@ namespace PacketTracer.Devices.Console
                 {
                     //Debug.WriteLine("value: " + value + "\nEOF");
                     terminalOutput = value;
+                    Debug.WriteLine("terminalOutput" + terminalOutput + "\nEOF");
                     ComputerConfiguration temp = uiManager.GetComputerConfigurationWindow(device);
                     if (temp != null && temp.ContentFrame.Content.GetType() == typeof(ComputerConfigurationConsole))
                     {
                         ComputerConfigurationConsole console = (ComputerConfigurationConsole)temp.ContentFrame.Content;
-                        uiManager.UpdateActiveConsoleAsync(console, value);
+                        uiManager.UpdateActiveConsoleAsync(console, terminalOutput);
                     }
                 }
             }

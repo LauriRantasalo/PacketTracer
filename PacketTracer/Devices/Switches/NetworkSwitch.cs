@@ -27,25 +27,25 @@ namespace PacketTracer.Devices.Switches
             Terminal = new SwitchTerminal(uIManager, this);
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <param name="physicalInterface">Sending device interface</param>
         public override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
         {
+            //await Task.Delay(50);
             // Add new routes to arp table
             //Debug.WriteLine(Name + " Got packet to " + packet.DestinationIpAddress);
-
-            MacAddressTableRow macAddressTableRow = CheckArpTable(packet.DestinationMacAddress);
             PhysicalInterface recievingPort = physicalInterface.ConnectedCable.GetPortOfDevice(this);
-            if (macAddressTableRow == null)
+            MacAddressTableRow destinationMacAddressTableRow = CheckArpTable(packet.DestinationIpAddress);
+            MacAddressTableRow sourceMacAddressTableRow = CheckArpTable(packet.SourceIpAddress);
+            if (sourceMacAddressTableRow == null)
             {
-                //Debug.WriteLine("new mac-address table row at " + Name + ": " + packet.SourceMacAddress + " - " + recievingPort.InterfaceName);
-                MacAddressTableRow temp = new MacAddressTableRow(packet.SourceMacAddress, recievingPort);// For some reason this works for arp requests, it shouldnt
+                MacAddressTableRow temp = new MacAddressTableRow(packet.SourceMacAddress, recievingPort);
                 MacAddressTable.Add(temp);
-                macAddressTableRow = temp;
-                foreach (var row in MacAddressTable)
-                {
-                    Debug.WriteLine(row.MacAddress + " " + row.PhysicalInterface.InterfaceName);
-                }
             }
+
             switch (packet.TypeOfPacket)
             {
                 case PacketType.icmp:
@@ -65,9 +65,9 @@ namespace PacketTracer.Devices.Switches
                     }
                     else if (arpPacket.EchoType == "Reply")
                     {
-                        if (macAddressTableRow != null)
+                        if (destinationMacAddressTableRow != null)
                         {
-                            SendPacket(arpPacket, macAddressTableRow.PhysicalInterface);
+                            SendPacket(arpPacket, destinationMacAddressTableRow.PhysicalInterface);
                         }
                         else
                         {

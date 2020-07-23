@@ -16,12 +16,12 @@ namespace PacketTracer
     public class EntityManager
     {
         public List<Device> Devices { get; set; }
+        private char[] macAddressChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
         public EntityManager()
         {
             Devices = new List<Device>();
         }
 
-        char[] macAddressChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".ToCharArray();
         public string GenerateNewMacAddress()
         {
             string address = "";

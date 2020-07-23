@@ -21,7 +21,8 @@ namespace PacketTracer.Devices.Console.Commands
         {
             string destinationAddress = commandParts[1];
             ICMPPacket packet = new ICMPPacket(destinationAddress, sourceDevice.EthernetPorts[0].IpAddress, sourceDevice.EthernetPorts[0].MacAddress, "Echo request");
-            return sourceDevice.SendPacket(packet, sourceDevice.EthernetPorts[0]);
+            sourceDevice.SendPacket(packet, sourceDevice.EthernetPorts[0]);
+            return "Pinging " + destinationAddress + " from " + sourceDevice.EthernetPorts[0].IpAddress;
         }
     }
 }

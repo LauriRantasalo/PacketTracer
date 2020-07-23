@@ -14,6 +14,7 @@ using PacketTracer.Devices.Console;
 using PacketTracer.Devices.Routers;
 using PacketTracer.Protocols;
 using PacketTracer.Devices.Computers;
+using PacketTracer.Devices.Switches;
 
 namespace PacketTracer.Devices
 {
@@ -39,66 +40,59 @@ namespace PacketTracer.Devices
             Name = name;
             BaseGrid = baseGrid;
         }
-       
-        public string SendPacket(Packet packet, PhysicalInterface physicalInterface)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <param name="physicalInterface">Interface to send the packet from</param>
+        public void SendPacket(Packet packet, PhysicalInterface physicalInterface)
         {
-
-            if (physicalInterface.ConnectedCable != null)
+            (Device devA, Device devB) = physicalInterface.ConnectedCable.SortCableDevices(this);
+            switch (TypeOfDevice)
             {
-                (Device aDebvice, Device bDevice) = physicalInterface.ConnectedCable.SortCableDevices(this);
-                switch (packet.TypeOfPacket)
-                {
-                    case PacketType.icmp:
-                        if (GetType() == typeof(Computer))
-                        {
-                            Computer temp = (Computer)this;
-                            ArpTableRow row = temp.CheckArpTable(packet.DestinationIpAddress);
-                            if (row == null)
-                            {
-                                // Send arp request
-                                bDevice.RecievePacketAsync(new ARPPacket(packet.DestinationIpAddress, physicalInterface.IpAddress, packet.SourceMacAddress, "Request"), physicalInterface);
-                                return "Sending arp request";
-                            }
-                            else
-                            {
-                                packet.DestinationMacAddress = row.MacAddress;
-                                bDevice.RecievePacketAsync(packet, physicalInterface);
-                                return "Pinging " + packet.DestinationIpAddress + " from " + physicalInterface.IpAddress;
-                            }
-                        }
-
-
-                        /*
-                         * string destinationMacAddress = CheckArpTable(packet.DestinationIpAddress);
-                        if (destinationMacAddress != "NO MATCH")
-                        {
-                            bDevice.RecievePacketAsync(packet, physicalInterface);
-                            Debug.WriteLine(Name + " @" + physicalInterface.InterfaceName + ":" + physicalInterface.IpAddress + " sending packet to " + packet.DestinationIpAddress);
-                            
-                        }
-                        else
-                        {
-                            // Generate and broadcast arp request to all ports in local network
-                            bDevice.RecievePacketAsync(new ARPPacket(packet.DestinationIpAddress, physicalInterface.IpAddress, packet.SourceMacAddress, "Request"), physicalInterface);
-                        }
-                         */
-                        break;
-                    case PacketType.arp:
-                        bDevice.RecievePacketAsync(packet, physicalInterface);
-                        //bDevice.RecievePacketAsync(new ARPPacket(packet.DestinationIpAddress, physicalInterface.IpAddress, packet.SourceMacAddress, "Request"), physicalInterface);
-                        break;
-                    case PacketType.tcp:
-                        break;
-                    case PacketType.udp:
-                        break;
-                    default:
-                        break;
-                }
-
+                case deviceType.Computer:
+                    Computer computer = (Computer)this;
+                    if (computer.CheckArpTable(packet.DestinationIpAddress) == null)
+                    {
+                        // Send arp request.
+                        Debug.WriteLine("Sending arp request");
+                        Terminal.TerminalOutput += "\nSending arp request";
+                        ARPPacket arpPacket = new ARPPacket(packet.DestinationIpAddress, packet.SourceIpAddress, packet.SourceMacAddress, "Request");
+                        devB.RecievePacketAsync(arpPacket, physicalInterface);
+                    }
+                    else
+                    {
+                        // Send packet
+                    }
+                    break;
+                case deviceType.Router:
+                    break;
+                case deviceType.Switch:
+                    NetworkSwitch networkSwitch = (NetworkSwitch)this;
+                    switch (packet.TypeOfPacket)
+                    {
+                        case PacketType.icmp:
+                            break;
+                        case PacketType.arp:
+                            devB.RecievePacketAsync(packet, physicalInterface);
+                            break;
+                        case PacketType.tcp:
+                            break;
+                        case PacketType.udp:
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
             }
-            return "No ethernet cable connected";
         }
-        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <param name="physicalInterface">Sending device interface</param>
         public abstract void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface);
 
         public PhysicalInterface GetFreeEthernetPort()

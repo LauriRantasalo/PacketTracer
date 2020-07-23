@@ -38,9 +38,9 @@ namespace PacketTracer
 
         public async void UpdateActiveConsoleAsync(ComputerConfigurationConsole console, string value)
         {
-            await Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            await Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
             {
-                //Debug.WriteLine("updating console");
+                Debug.WriteLine("updating console " + value);
                 console.ConsoleTextBlock.Text = value;
             });
         } 

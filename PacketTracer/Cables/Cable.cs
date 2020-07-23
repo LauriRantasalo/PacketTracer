@@ -91,6 +91,7 @@ namespace PacketTracer.Cables
             }
             else
             {
+                Debug.WriteLine("SortCableDevices this should not happen: DeviceA: " + DeviceA.Name  + " DeviceB: " + DeviceB.Name + " deviceToSortBy: " + deviceToSortBy.Name);
                 return (null, null);
             }
         }

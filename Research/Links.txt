@@ -1,1 +1,5 @@
 https://qnaplus.com/what-is-arp-and-how-does-it-work/	- what is arp and how does it work
+https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/async - Async
+https://docs.microsoft.com/en-us/dotnet/csharp/async - Async
+https://www.dotnetperls.com/async - Async examples
+https://stackoverflow.com/questions/16063520/how-do-you-create-an-asynchronous-method-in-c - Async stack overflow
