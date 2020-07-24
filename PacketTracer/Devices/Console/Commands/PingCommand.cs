@@ -17,12 +17,12 @@ namespace PacketTracer.Devices.Console.Commands
             Synonyms = new string[] { "ping"};
         }
 
-        public override string Execute(Device sourceDevice, List<string> commandParts)
+        public override void Execute(Device sourceDevice, List<string> commandParts)
         {
             string destinationAddress = commandParts[1];
             ICMPPacket packet = new ICMPPacket(destinationAddress, sourceDevice.EthernetPorts[0].IpAddress, sourceDevice.EthernetPorts[0].MacAddress, "Echo request");
+            sourceDevice.Terminal.TerminalOutput += "\nPinging " + destinationAddress + " from " + sourceDevice.EthernetPorts[0].IpAddress;
             sourceDevice.SendPacket(packet, sourceDevice.EthernetPorts[0]);
-            return "Pinging " + destinationAddress + " from " + sourceDevice.EthernetPorts[0].IpAddress;
         }
     }
 }

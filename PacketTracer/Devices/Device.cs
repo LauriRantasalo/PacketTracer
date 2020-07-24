@@ -45,49 +45,7 @@ namespace PacketTracer.Devices
         /// </summary>
         /// <param name="packet"></param>
         /// <param name="physicalInterface">Interface to send the packet from</param>
-        public void SendPacket(Packet packet, PhysicalInterface physicalInterface)
-        {
-            (Device devA, Device devB) = physicalInterface.ConnectedCable.SortCableDevices(this);
-            switch (TypeOfDevice)
-            {
-                case deviceType.Computer:
-                    Computer computer = (Computer)this;
-                    if (computer.CheckArpTable(packet.DestinationIpAddress) == null)
-                    {
-                        // Send arp request.
-                        Debug.WriteLine("Sending arp request");
-                        Terminal.TerminalOutput += "\nSending arp request";
-                        ARPPacket arpPacket = new ARPPacket(packet.DestinationIpAddress, packet.SourceIpAddress, packet.SourceMacAddress, "Request");
-                        devB.RecievePacketAsync(arpPacket, physicalInterface);
-                    }
-                    else
-                    {
-                        // Send packet
-                    }
-                    break;
-                case deviceType.Router:
-                    break;
-                case deviceType.Switch:
-                    NetworkSwitch networkSwitch = (NetworkSwitch)this;
-                    switch (packet.TypeOfPacket)
-                    {
-                        case PacketType.icmp:
-                            break;
-                        case PacketType.arp:
-                            devB.RecievePacketAsync(packet, physicalInterface);
-                            break;
-                        case PacketType.tcp:
-                            break;
-                        case PacketType.udp:
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
+        public abstract void SendPacket(Packet packet, PhysicalInterface physicalInterface);
         /// <summary>
         /// 
         /// </summary>

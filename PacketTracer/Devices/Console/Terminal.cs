@@ -25,7 +25,7 @@ namespace PacketTracer.Devices.Console
                 {
                     //Debug.WriteLine("value: " + value + "\nEOF");
                     terminalOutput = value;
-                    Debug.WriteLine("terminalOutput" + terminalOutput + "\nEOF");
+                    //Debug.WriteLine("terminalOutput" + terminalOutput + "\nEOF");
                     ComputerConfiguration temp = uiManager.GetComputerConfigurationWindow(device);
                     if (temp != null && temp.ContentFrame.Content.GetType() == typeof(ComputerConfigurationConsole))
                     {
@@ -42,7 +42,7 @@ namespace PacketTracer.Devices.Console
             this.uiManager = uiManager;
         }
 
-        public abstract string ExecuteCommand(string command);
+        public abstract void ExecuteCommand(string command);
         
     }
 }

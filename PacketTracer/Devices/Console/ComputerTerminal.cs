@@ -14,10 +14,10 @@ namespace PacketTracer.Devices.Console
         private ConsoleCommand[] commands;
         public ComputerTerminal(UIManager uiManager, Device device) : base(uiManager, device)
         {
-            commands = new ConsoleCommand[] { new PingCommand() };
+            commands = new ConsoleCommand[] { new PingCommand(), new ArpCommand() };
         }
 
-        public override string ExecuteCommand(string command)
+        public override void ExecuteCommand(string command)
         {
             command.Trim();
             List<string> commandParts = command.Split(" ").ToList();
@@ -25,12 +25,13 @@ namespace PacketTracer.Devices.Console
             {
                 if (commandParts[0].ToLower() == c.Synonyms[0])
                 {
-                    return c.Execute(this.device, commandParts);
+                    c.Execute(this.device, commandParts);
+                    return;
                 }
             }
-            
-            return commandParts[0] + " is not regognized as a command";
-            
+            device.Terminal.TerminalOutput += "\n" + commandParts[0] + " is not regognized as a command";
+            //return commandParts[0] + " is not regognized as a command";
+
         }
     }
 }

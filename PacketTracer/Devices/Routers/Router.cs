@@ -14,6 +14,10 @@ namespace PacketTracer.Devices.Routers
         {
 
         }
+        public override void SendPacket(Packet packet, PhysicalInterface physicalInterface)
+        {
+            throw new NotImplementedException();
+        }
         public override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
         {
             throw new NotImplementedException();

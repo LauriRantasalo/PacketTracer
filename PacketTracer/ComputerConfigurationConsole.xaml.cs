@@ -57,8 +57,8 @@ namespace PacketTracer
                 if (txtBox.Text.Length > 0)
                 {
                     device.Terminal.TerminalOutput += "\n" + txtBox.Text;
-                    string tmp = device.Terminal.ExecuteCommand(txtBox.Text);
-                    device.Terminal.TerminalOutput += "\n" + tmp;
+                    device.Terminal.ExecuteCommand(txtBox.Text);
+                    //device.Terminal.TerminalOutput += "\n" + tmp;
                     txtBox.Text = "";
 
                 }

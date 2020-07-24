@@ -36,15 +36,61 @@ namespace PacketTracer.Devices.Computers
             Terminal = new ComputerTerminal(uiManager, this);
         }
 
-        public override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
+        public override void SendPacket(Packet packet, PhysicalInterface physicalInterface)
         {
-            //await Task.Delay(100);
+            (Device devA, Device devB) = physicalInterface.ConnectedCable.SortCableDevices(this);
+            switch (packet.TypeOfPacket)
+            {
+                case PacketType.icmp:
+                    Debug.WriteLine("Send icmp");
+                    if (CheckArpTable(packet.DestinationIpAddress) == null)
+                    {
+                        // Send arp request.
+                        Debug.WriteLine("Sending arp request");
+                        Terminal.TerminalOutput += "\nSending arp request";
+                        ARPPacket arpPacket = new ARPPacket(packet.DestinationIpAddress, packet.SourceIpAddress, packet.SourceMacAddress, "Request");
+                        devB.RecievePacketAsync(arpPacket, physicalInterface);
+                    }
+                    else
+                    {
+                        // Send icmp packet
+                        devB.RecievePacketAsync(packet, physicalInterface);
+                    }
+                    break;
+                case PacketType.arp:
+                    if (CheckArpTable(packet.DestinationIpAddress) == null)
+                    {
+                        // Send arp request.
+                        Debug.WriteLine("Sending arp request");
+                        Terminal.TerminalOutput += "\nSending arp request";
+                        ARPPacket arpPacket = new ARPPacket(packet.DestinationIpAddress, packet.SourceIpAddress, packet.SourceMacAddress, "Request");
+                        devB.RecievePacketAsync(arpPacket, physicalInterface);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("HERE");
+                        // Send packet
+                        devB.RecievePacketAsync(packet, physicalInterface);
+                    }
+                    break;
+                case PacketType.tcp:
+                    break;
+                case PacketType.udp:
+                    break;
+                default:
+                    break;
+            }
+           
+        }
+        public async override void RecievePacketAsync(Packet packet, PhysicalInterface physicalInterface)
+        {
+            await Task.Delay(100);
             //Debug.WriteLine(Name + " got packet to" + packet.DestinationIpAddress);
             ArpTableRow arpTableRow = CheckArpTable(packet.SourceMacAddress);
             PhysicalInterface recievingPort = physicalInterface.ConnectedCable.GetPortOfDevice(this);
             if (arpTableRow == null && packet.SourceIpAddress != "NONE")
             {
-                //Debug.WriteLine("new arp table row at: " + Name + " - " + packet.SourceMacAddress + " " + packet.SourceIpAddress);
+                Debug.WriteLine("new arp table row at: " + Name + " - " + packet.SourceMacAddress + " " + packet.SourceIpAddress);
                 ArpTable.Add(new ArpTableRow(packet.SourceMacAddress, packet.SourceIpAddress));
             }
             switch (packet.TypeOfPacket)
@@ -65,7 +111,7 @@ namespace PacketTracer.Devices.Computers
                             else if (icmpPacket.EchoType == "Echo reply")
                             {
 
-                                Terminal.TerminalOutput += "\n" + "Reply from " + icmpPacket.SourceIpAddress + " Time: " + (DateTime.Now - icmpPacket.SendTime).ToString();
+                                Terminal.TerminalOutput += "\nReply from " + icmpPacket.SourceIpAddress + " Time: " + (DateTime.Now - icmpPacket.SendTime).ToString();
                                 icmpPacket.ToRequest();
                                 Debug.WriteLine("Reply recieved");
                                 if (icmpPacket.NroOfRoundsDone < icmpPacket.MaxNroOfRounds)
@@ -90,14 +136,18 @@ namespace PacketTracer.Devices.Computers
                         Debug.WriteLine("Arp destination reached at: " + Name);
                         if (arpPacket.EchoType == "Request")
                         {
-                            Debug.WriteLine("Request to reply at " + Name + "  " + recievingPort.MacAddress + " " + EthernetPorts[0].MacAddress);
+                            Debug.WriteLine("Request to reply at " + Name + "  " + recievingPort.MacAddress + " " + EthernetPorts[0].MacAddress + " " + EthernetPorts[0].InterfaceName);
                             arpPacket.ToReply(recievingPort.MacAddress);
                             SendPacket(arpPacket, recievingPort);
                         }
                         else if(arpPacket.EchoType == "Reply")
                         {
                             Debug.WriteLine("HERE");
-                            Terminal.TerminalOutput += "\n" + "Arp reply recieved";
+                            Terminal.TerminalOutput += "\nArp reply recieved";
+                            foreach (var row in ArpTable)
+                            {
+                                Terminal.TerminalOutput += "\narptable row " + row.MacAddress + " " + row.IpAddress; 
+                            }
                         }
                         else
                         {

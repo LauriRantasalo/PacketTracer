@@ -10,6 +10,6 @@ namespace PacketTracer.Devices.Console.Commands
     {
         public string[] Synonyms { get; set; }
 
-        public abstract string Execute(Device sourceDevice, List<string> commandParts);
+        public abstract void Execute(Device sourceDevice, List<string> commandParts);
     }
 }

@@ -15,7 +15,7 @@ namespace PacketTracer.Devices.Console
             commands = new ConsoleCommand[] { new PingCommand() };
         }
 
-        public override string ExecuteCommand(string command)
+        public override void ExecuteCommand(string command)
         {
             throw new NotImplementedException();
         }

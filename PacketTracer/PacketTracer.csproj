@@ -135,6 +135,7 @@
     </Compile>
     <Compile Include="Devices\Computers\ArpTableRow.cs" />
     <Compile Include="Devices\Computers\Computer.cs" />
+    <Compile Include="Devices\Console\Commands\ArpCommand.cs" />
     <Compile Include="Devices\Console\Commands\ConsoleCommand.cs" />
     <Compile Include="Devices\Console\Commands\PingCommand.cs" />
     <Compile Include="Devices\Console\ComputerTerminal.cs" />
